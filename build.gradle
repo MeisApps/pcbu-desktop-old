@@ -1,0 +1,128 @@
+import io.github.fvarrui.javapackager.gradle.PackageTask
+import proguard.gradle.ProGuardTask
+
+buildscript {
+    ext.kotlin_version = '1.7.0'
+
+    repositories {
+        google()
+        mavenCentral()
+    }
+
+    dependencies {
+        classpath 'com.guardsquare:proguard-gradle:7.2.2'
+        classpath 'io.github.fvarrui:javapackager:1.6.7'
+    }
+}
+
+plugins {
+    id 'idea'
+    id 'application'
+
+    id 'org.jetbrains.kotlin.jvm' version "$kotlin_version"
+    id 'org.jetbrains.kotlin.plugin.serialization' version "$kotlin_version"
+}
+apply plugin: 'io.github.fvarrui.javapackager.plugin'
+
+repositories {
+    mavenCentral()
+}
+
+tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
+    kotlinOptions {
+        jvmTarget = "1.8"
+    }
+}
+
+dependencies {
+    implementation 'com.google.guava:guava:31.1-jre'
+    implementation 'org.jetbrains.kotlinx:kotlinx-serialization-json:1.4.0'
+
+    implementation 'com.formdev:flatlaf:2.4'
+    implementation 'com.beust:jcommander:1.82'
+
+    implementation 'com.google.zxing:core:3.5.0'
+    implementation 'com.google.zxing:javase:3.5.0'
+
+    implementation 'net.java.dev.jna:jna:5.12.1'
+    implementation 'net.java.dev.jna:jna-platform:5.12.1'
+
+    implementation 'com.squareup.okhttp3:okhttp:4.10.0'
+}
+
+application {
+    mainClass = 'com.meisapps.pcbiounlock.MainKt'
+}
+
+jar {
+    manifest {
+        attributes(
+                'Main-Class': 'com.meisapps.pcbiounlock.MainKt'
+        )
+        duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    }
+    from {
+        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+}
+
+task packageWin(type: PackageTask) {
+    mainClass = 'com.meisapps.pcbiounlock.MainKt'
+    runnableJar = new File('build/libs/PCBioUnlockDesktop_obf.jar')
+    bundleJre = false
+    generateInstaller = false
+    copyDependencies = false
+    administratorRequired = true
+    jreMinVersion = '1.8'
+    platform = 'windows'
+}
+
+task packageLinux(type: PackageTask) {
+    mainClass = 'com.meisapps.pcbiounlock.MainKt'
+    runnableJar = new File('build/libs/PCBioUnlockDesktop_obf.jar')
+    bundleJre = false
+    generateInstaller = false
+    copyDependencies = false
+    jreMinVersion = '1.8'
+    platform = 'linux'
+}
+
+task ('proguard', type: ProGuardTask) {
+    configuration 'proguard-rules.pro'
+    verbose
+
+    injars  'build/libs/PCBioUnlockDesktop.jar'
+    outjars 'build/libs/PCBioUnlockDesktop_obf.jar'
+
+    libraryjars "/usr/lib/jvm/java-8-openjdk/jre/lib/rt.jar"
+    libraryjars "/usr/lib/jvm/java-8-openjdk/jre/lib/jce.jar"
+    /*fileTree("${System.properties['java.home']}\\jmods\\") {
+        forEach() {
+            libraryjars "${it.path}"
+        }
+    }*/
+
+    printmapping 'build/libs/out.map'
+    renamesourcefileattribute 'SourceFile'
+    keepattributes 'SourceFile,LineNumberTable'
+    keepattributes '*Annotation*'
+
+    keepclasseswithmembers 'public class * { \
+        public static void main(java.lang.String[]); \
+    }'
+    keepclasseswithmembernames includedescriptorclasses: true, 'class * { \
+        native <methods>; \
+    }'
+    keepclassmembers allowoptimization: true, 'enum * { \
+        public static **[] values(); \
+        public static ** valueOf(java.lang.String); \
+    }'
+    keepclassmembers 'class * implements java.io.Serializable { \
+        static final long serialVersionUID; \
+        static final java.io.ObjectStreamField[] serialPersistentFields; \
+        private void writeObject(java.io.ObjectOutputStream); \
+        private void readObject(java.io.ObjectInputStream); \
+        java.lang.Object writeReplace(); \
+        java.lang.Object readResolve(); \
+    }'
+}
