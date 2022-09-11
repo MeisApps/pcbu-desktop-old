@@ -91,7 +91,7 @@ task ('proguard', type: ProGuardTask) {
     configuration 'proguard-rules.pro'
     verbose
 
-    injars  'build/libs/PCBioUnlockDesktop.jar'
+    injars  'build/libs/pcbu-desktop.jar'
     outjars 'build/libs/PCBioUnlockDesktop_obf.jar'
 
     libraryjars "/usr/lib/jvm/java-8-openjdk/jre/lib/rt.jar"
