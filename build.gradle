@@ -94,8 +94,8 @@ task ('proguard', type: ProGuardTask) {
     injars  'build/libs/pcbu-desktop.jar'
     outjars 'build/libs/PCBioUnlockDesktop_obf.jar'
 
-    libraryjars "/usr/lib/jvm/java-8-openjdk/jre/lib/rt.jar"
-    libraryjars "/usr/lib/jvm/java-8-openjdk/jre/lib/jce.jar"
+    libraryjars "C:/Program Files/Eclipse Adoptium/jdk-8.0.372.7-hotspot/jre/lib/rt.jar"
+    libraryjars "C:/Program Files/Eclipse Adoptium/jdk-8.0.372.7-hotspot/jre/lib/jce.jar"
     /*fileTree("${System.properties['java.home']}\\jmods\\") {
         forEach() {
             libraryjars "${it.path}"

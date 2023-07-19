@@ -3,7 +3,7 @@ package com.meisapps.pcbiounlock.utils
 
 object VersionInfo {
     fun getAppVersion(): String {
-        return "1.0.2"
+        return "1.0.3"
     }
 
     fun getProtocolVersion(): String {

@@ -26,7 +26,7 @@ object AESUtils {
         return hexString.toString()
     }
 
-    private const val PACKET_TIMEOUT = 30000
+    private const val PACKET_TIMEOUT = 60000 * 2
 
     fun encryptPacketData(data: ByteArray, key: String): ByteArray {
         val secureRandom = SecureRandom()
