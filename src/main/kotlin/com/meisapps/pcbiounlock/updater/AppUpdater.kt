@@ -49,23 +49,27 @@ object AppUpdater {
         }
     }
 
-    fun updateNatives() {
+    fun updateNatives(runCli: Boolean) {
         val serviceInstaller = ServiceInstaller.getForPlatform(Shell.getForPlatform()!!)!!
         if(VersionInfo.compareVersion(AppSettings.get().installedVersion, VersionInfo.getAppVersion()) == 1) {
-            Console.println("Updating to version ${VersionInfo.getAppVersion()}...")
-            val updaterFrame = UpdaterFrame()
-            EventQueue.invokeAndWait {
-                updaterFrame.updateAction(I18n.get("ui_installing_update"))
-                updaterFrame.isVisible = true
-            }
+            if(runCli) {
+                Console.println("Updating to version ${VersionInfo.getAppVersion()}...")
+                serviceInstaller.reinstall()
+                Console.println("Update complete.")
+            } else {
+                val updaterFrame = UpdaterFrame()
+                EventQueue.invokeAndWait {
+                    updaterFrame.updateAction(I18n.get("ui_installing_update"))
+                    updaterFrame.isVisible = true
+                }
 
-            serviceInstaller.reinstall()
-            Thread.sleep(200) // Avoid race condition
+                serviceInstaller.reinstall()
+                Thread.sleep(200) // Avoid race condition
 
-            EventQueue.invokeAndWait {
-                updaterFrame.isVisible = false
+                EventQueue.invokeAndWait {
+                    updaterFrame.isVisible = false
+                }
             }
-            Console.println("Update complete.")
         }
     }
 }

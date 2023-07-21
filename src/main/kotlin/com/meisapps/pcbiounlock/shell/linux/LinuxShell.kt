@@ -37,7 +37,7 @@ class LinuxShell : Shell() {
         }
 
         if(GraphicsEnvironment.isHeadless())
-            Console.fatal("Please run as root.\nExample: sudo java -jar PCBioUnlockDesktop.jar")
+            Console.fatal("Please run as root.\nExample: sudo java -jar PCBioUnlock.jar")
     }
 
     override fun runUserCommand(cmd: String): CommandResult {

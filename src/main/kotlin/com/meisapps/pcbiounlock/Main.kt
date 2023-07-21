@@ -94,7 +94,7 @@ fun runMain(args: Array<String>) {
     Console.println()
 
     // Update installed module
-    AppUpdater.updateNatives()
+    AppUpdater.updateNatives(shouldRunCli)
 
     if(shouldRunCli) {
         runCli(args, shell)
