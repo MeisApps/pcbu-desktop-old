@@ -51,7 +51,7 @@ object AppUpdater {
 
     fun updateNatives() {
         val serviceInstaller = ServiceInstaller.getForPlatform(Shell.getForPlatform()!!)!!
-        if(VersionInfo.compareVersion(VersionInfo.getAppVersion(), AppSettings.get().installedVersion) > 0) {
+        if(VersionInfo.compareVersion(AppSettings.get().installedVersion, VersionInfo.getAppVersion()) == 1) {
             Console.println("Updating to version ${VersionInfo.getAppVersion()}...")
             val updaterFrame = UpdaterFrame()
             EventQueue.invokeAndWait {

@@ -1,4 +1,3 @@
--dontnote
 -dontwarn okio.**
 -dontwarn okhttp3.**
 

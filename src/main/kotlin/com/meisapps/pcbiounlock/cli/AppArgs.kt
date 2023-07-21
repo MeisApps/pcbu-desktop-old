@@ -3,9 +3,6 @@ package com.meisapps.pcbiounlock.cli
 import com.beust.jcommander.Parameter
 
 class AppArgs {
-    @Parameter
-    private var parameters = ArrayList<String>()
-
     @Parameter(names = ["-h", "--help"], description = "Shows the help screen.", help = true)
     var showHelp = false
 
