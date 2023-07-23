@@ -20,8 +20,10 @@ object ResourceHelper {
     const val LinuxSSLFileName = "libssl.so.1.1"
     const val LinuxCryptoFileName = "libcrypto.so.1.1"
 
-    const val WinX64SSLFileName = "libssl-1_1-x64.dll"
-    const val WinX64CryptoFileName = "libcrypto-1_1-x64.dll"
+    const val WinX64SSLFileName = "libssl-3-x64.dll"
+    const val WinX64CryptoFileName = "libcrypto-3-x64.dll"
+    const val WinARM64SSLFileName = "libssl-3-arm64.dll"
+    const val WinARM64CryptoFileName = "libcrypto-3-arm64.dll"
 
     fun getNativeModule() : ByteArray {
         return when(OperatingSystem.get()) {

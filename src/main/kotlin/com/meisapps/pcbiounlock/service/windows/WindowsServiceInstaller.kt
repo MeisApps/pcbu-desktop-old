@@ -2,8 +2,12 @@ package com.meisapps.pcbiounlock.service.windows
 
 import com.meisapps.pcbiounlock.service.ServiceInstaller
 import com.meisapps.pcbiounlock.shell.Shell
+import com.meisapps.pcbiounlock.utils.host.HostArchitecture
+import com.meisapps.pcbiounlock.utils.host.HostUtils
 import com.meisapps.pcbiounlock.utils.io.Console
 import com.meisapps.pcbiounlock.utils.io.ResourceHelper
+import com.meisapps.pcbiounlock.utils.io.ResourceHelper.WinARM64CryptoFileName
+import com.meisapps.pcbiounlock.utils.io.ResourceHelper.WinARM64SSLFileName
 import com.meisapps.pcbiounlock.utils.io.ResourceHelper.WinModuleFileName
 import com.meisapps.pcbiounlock.utils.io.ResourceHelper.WinX64CryptoFileName
 import com.meisapps.pcbiounlock.utils.io.ResourceHelper.WinX64SSLFileName
@@ -17,6 +21,7 @@ class WindowsServiceInstaller(private val shell: Shell) : ServiceInstaller() {
         const val JavaFirewallRule = "Java (PC Bio Unlock)"
         const val LogonUIFirewallRule = "LogonUI (PC Bio Unlock)"
     }
+    private val isArm = HostUtils.getCpuArchitecture() == HostArchitecture.ARM64
 
     override fun getModulePath(): String {
         return "${getSystem32()}$WinModuleFileName"
@@ -28,11 +33,11 @@ class WindowsServiceInstaller(private val shell: Shell) : ServiceInstaller() {
 
     override fun installOpenSSL() {
         Console.println("Installing OpenSSL...")
-        val sslData = ResourceHelper.getNativeByName(WinX64SSLFileName)
-        shell.writeBytes("${getSystem32()}$WinX64SSLFileName", sslData)
+        val sslData = ResourceHelper.getNativeByName(if(isArm) WinARM64SSLFileName else WinX64SSLFileName)
+        shell.writeBytes(getSystem32() + if(isArm) WinARM64SSLFileName else WinX64SSLFileName, sslData)
 
-        val cryptoData = ResourceHelper.getNativeByName(WinX64CryptoFileName)
-        shell.writeBytes("${getSystem32()}$WinX64CryptoFileName", cryptoData)
+        val cryptoData = ResourceHelper.getNativeByName(if(isArm) WinARM64CryptoFileName else WinX64CryptoFileName)
+        shell.writeBytes(getSystem32() + if(isArm) WinARM64CryptoFileName else WinX64CryptoFileName, cryptoData)
     }
 
     override fun doInstall() {
@@ -83,8 +88,8 @@ class WindowsServiceInstaller(private val shell: Shell) : ServiceInstaller() {
     }
 
     override fun isOpenSSLInstalled(): Boolean {
-        return File("${getSystem32()}$WinX64SSLFileName").exists() &&
-                File("${getSystem32()}$WinX64CryptoFileName").exists()
+        return File(getSystem32() + if(isArm) WinARM64SSLFileName else WinX64SSLFileName).exists() &&
+                File(getSystem32() + if(isArm) WinARM64CryptoFileName else WinX64CryptoFileName).exists()
     }
 
     private fun getSystem32(): String {

@@ -61,15 +61,16 @@ object StartupHelper {
         // Windows
         if(OperatingSystem.isWindows) {
             // Is 64 bit
-            if(HostUtils.getCpuArchitecture() != HostArchitecture.X86_64)
+            if(HostUtils.getCpuArchitecture() != HostArchitecture.X86_64 && HostUtils.getCpuArchitecture() != HostArchitecture.ARM64)
                 throw ErrorMessageException(I18n.get("unsupported_arch"))
+            val isArm = HostUtils.getCpuArchitecture() == HostArchitecture.ARM64
 
             // Has VC Redist
             var hasRedist = false
             try {
                 val redistBuild = Advapi32Util.registryGetIntValue(
                     WinReg.HKEY_LOCAL_MACHINE,
-                    "SOFTWARE\\Microsoft\\VisualStudio\\14.0\\VC\\Runtimes\\x64",
+                    "SOFTWARE\\Microsoft\\VisualStudio\\14.0\\VC\\Runtimes\\" + if(isArm) "arm64" else "x64",
                     "Bld"
                 )
                 hasRedist = redistBuild >= 0x7a5e
@@ -84,15 +85,20 @@ object StartupHelper {
                     JOptionPane.ERROR_MESSAGE
                 )
                 if (dialogResult == JOptionPane.YES_OPTION) {
-                    val link = "https://aka.ms/vs/17/release/vc_redist.x64.exe"
+                    val link = "https://aka.ms/vs/17/release/vc_redist." + (if(isArm) "arm64" else "x64") + ".exe"
                     Desktop.getDesktop().browse(URI(link))
                 }
                 exitProcess(1)
             }
 
             ResourceHelper.getNativeByName(ResourceHelper.WinModuleFileName)
-            ResourceHelper.getNativeByName(ResourceHelper.WinX64CryptoFileName)
-            ResourceHelper.getNativeByName(ResourceHelper.WinX64SSLFileName)
+            if(isArm) {
+                ResourceHelper.getNativeByName(ResourceHelper.WinARM64CryptoFileName)
+                ResourceHelper.getNativeByName(ResourceHelper.WinARM64SSLFileName)
+            } else {
+                ResourceHelper.getNativeByName(ResourceHelper.WinX64CryptoFileName)
+                ResourceHelper.getNativeByName(ResourceHelper.WinX64SSLFileName)
+            }
         }
 
         Console.println("Resources verified.")

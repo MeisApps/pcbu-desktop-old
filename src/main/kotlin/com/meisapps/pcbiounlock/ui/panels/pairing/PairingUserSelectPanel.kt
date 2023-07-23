@@ -2,6 +2,7 @@ package com.meisapps.pcbiounlock.ui.panels.pairing
 
 import com.formdev.flatlaf.util.ScaledImageIcon
 import com.meisapps.pcbiounlock.natives.NativeUtils
+import com.meisapps.pcbiounlock.natives.WinUtils
 import com.meisapps.pcbiounlock.ui.UIGlobals
 import com.meisapps.pcbiounlock.ui.panels.RoundedPanel
 import com.meisapps.pcbiounlock.utils.extensions.withFontSize
@@ -11,12 +12,7 @@ import com.meisapps.pcbiounlock.utils.text.I18n
 import java.awt.*
 import java.awt.event.MouseEvent
 import java.awt.event.MouseListener
-import javax.swing.BorderFactory
-import javax.swing.ImageIcon
-import javax.swing.JLabel
-import javax.swing.JPanel
-import javax.swing.JScrollPane
-import javax.swing.UIManager
+import javax.swing.*
 
 
 class UserGroup {
@@ -170,6 +166,10 @@ class PairingUserSelectPanel(form: IPairingForm) : PairingPanel(form) {
     override fun onNextClicked(): PairingPanel? {
         if(userGroup.selectedPanel == null)
             return null
+        if(OperatingSystem.isWindows && !WinUtils.hasUserPassword(userGroup.selectedPanel!!.userName)) {
+            JOptionPane.showMessageDialog(form.getFrame(), I18n.get("ui_win_no_password"), I18n.get("error"), JOptionPane.ERROR_MESSAGE)
+            return null
+        }
 
         return PairingUserPasswordPanel(form, userGroup.selectedPanel!!.userName)
     }

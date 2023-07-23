@@ -64,18 +64,30 @@ object WinUtils : NativeUtils() {
     private const val UF_NORMAL_ACCOUNT = 0x00000200
     private const val UF_DONT_EXPIRE_PASSWD = 0x00010000
 
+    fun hasUserPassword(userName: String): Boolean {
+        val split = userName.split("\\")
+        if(split.size != 2)
+            return false
+
+        val phUser = WinNT.HANDLEByReference()
+        Advapi32.INSTANCE.LogonUser(split[1], split[0], "", WinBase.LOGON32_LOGON_NETWORK, WinBase.LOGON32_PROVIDER_DEFAULT, phUser)
+        val error = Kernel32.INSTANCE.GetLastError()
+        if(phUser.value != null)
+            Kernel32.INSTANCE.CloseHandle(phUser.value)
+
+        return error != 1327
+    }
+
     override fun checkUserLogin(userName: String, password: String): Boolean {
         val split = userName.split("\\")
         if(split.size != 2)
             return false
 
         val phUser = WinNT.HANDLEByReference()
-        if (!Advapi32.INSTANCE.LogonUser(split[1], split[0], password, WinBase.LOGON32_LOGON_NETWORK, WinBase.LOGON32_PROVIDER_DEFAULT, phUser))
-            return false
-
+        val result = Advapi32.INSTANCE.LogonUser(split[1], split[0], password, WinBase.LOGON32_LOGON_NETWORK, WinBase.LOGON32_PROVIDER_DEFAULT, phUser)
         if(phUser.value != null)
             Kernel32.INSTANCE.CloseHandle(phUser.value)
-        return true
+        return result
     }
 
     @Suppress("UNCHECKED_CAST")
