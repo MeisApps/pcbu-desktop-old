@@ -52,10 +52,12 @@ object StartupHelper {
             if(!LinuxUtils.hasSharedLibrary("libcrypt.so.1"))
                 throw ErrorMessageException(I18n.get("error_linux_required_dep", "libcrypt"))
 
+            // Has OpenSSL
+            if(!LinuxUtils.hasSharedLibrary(ResourceHelper.LinuxCryptoFileName) || !LinuxUtils.hasSharedLibrary(ResourceHelper.LinuxSSLFileName))
+                throw ErrorMessageException(I18n.get("error_linux_required_dep", "OpenSSL 3"))
+
             ResourceHelper.getNativeByName(ResourceHelper.PcbuAuthFileName)
             ResourceHelper.getNativeByName(ResourceHelper.PamModuleFileName)
-            ResourceHelper.getNativeByName(ResourceHelper.LinuxCryptoFileName)
-            ResourceHelper.getNativeByName(ResourceHelper.LinuxSSLFileName)
         }
 
         // Windows

@@ -17,8 +17,8 @@ object ResourceHelper {
     const val PamModuleFileName = "pam_pcbiounlock.so"
     const val WinModuleFileName = "win-pcbiounlock.dll"
 
-    const val LinuxSSLFileName = "libssl.so.1.1"
-    const val LinuxCryptoFileName = "libcrypto.so.1.1"
+    const val LinuxSSLFileName = "libssl.so.3"
+    const val LinuxCryptoFileName = "libcrypto.so.3"
 
     const val WinX64SSLFileName = "libssl-3-x64.dll"
     const val WinX64CryptoFileName = "libcrypto-3-x64.dll"

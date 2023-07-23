@@ -4,6 +4,7 @@ import com.meisapps.pcbiounlock.service.ServiceInstaller
 import com.meisapps.pcbiounlock.shell.Shell
 import com.meisapps.pcbiounlock.storage.AppSettings
 import com.meisapps.pcbiounlock.natives.LinuxUtils
+import com.meisapps.pcbiounlock.utils.ErrorMessageException
 import com.meisapps.pcbiounlock.utils.io.Console
 import com.meisapps.pcbiounlock.utils.io.IOUtils
 import com.meisapps.pcbiounlock.utils.io.ResourceHelper
@@ -11,6 +12,7 @@ import com.meisapps.pcbiounlock.utils.io.ResourceHelper.LinuxCryptoFileName
 import com.meisapps.pcbiounlock.utils.io.ResourceHelper.LinuxSSLFileName
 import com.meisapps.pcbiounlock.utils.io.ResourceHelper.PamModuleFileName
 import com.meisapps.pcbiounlock.utils.io.ResourceHelper.PcbuAuthFileName
+import com.meisapps.pcbiounlock.utils.text.I18n
 import java.io.BufferedReader
 import java.io.File
 import java.io.FileReader
@@ -48,12 +50,7 @@ class LinuxServiceInstaller(private val shell: Shell) : ServiceInstaller() {
     }
 
     override fun installOpenSSL() {
-        Console.println("Installing OpenSSL...")
-        val cryptoData = ResourceHelper.getNativeByName(LinuxCryptoFileName)
-        shell.writeBytes("/usr/lib/$LinuxCryptoFileName", cryptoData)
-
-        val sslData = ResourceHelper.getNativeByName(LinuxSSLFileName)
-        shell.writeBytes("/usr/lib/$LinuxSSLFileName", sslData)
+        throw ErrorMessageException(I18n.get("error_linux_required_dep", "OpenSSL 3"))
     }
 
     override fun doInstall() {
