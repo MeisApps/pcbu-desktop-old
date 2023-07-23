@@ -14,6 +14,7 @@ import com.meisapps.pcbiounlock.utils.text.I18n
 import com.sun.jna.platform.win32.Advapi32Util
 import com.sun.jna.platform.win32.WinReg
 import java.awt.Desktop
+import java.awt.GraphicsEnvironment
 import java.net.URI
 import javax.swing.JOptionPane
 import kotlin.system.exitProcess
@@ -55,6 +56,20 @@ object StartupHelper {
             // Has OpenSSL
             if(!LinuxUtils.hasSharedLibrary(ResourceHelper.LinuxCryptoFileName) || !LinuxUtils.hasSharedLibrary(ResourceHelper.LinuxSSLFileName))
                 throw ErrorMessageException(I18n.get("error_linux_required_dep", "OpenSSL 3"))
+
+            // SELinux check
+            if(shell.runUserCommand("which getenforce").exitCode == 0 && shell.runUserCommand("getenforce").output == "Enforcing") {
+                if(GraphicsEnvironment.isHeadless()) {
+                    Console.println("${I18n.get("warning").uppercase()}: ${I18n.get("warning_selinux")}")
+                } else {
+                    JOptionPane.showMessageDialog(
+                        null,
+                        I18n.get("warning_selinux"),
+                        I18n.get("warning"),
+                        JOptionPane.WARNING_MESSAGE
+                    )
+                }
+            }
 
             ResourceHelper.getNativeByName(ResourceHelper.PcbuAuthFileName)
             ResourceHelper.getNativeByName(ResourceHelper.PamModuleFileName)
