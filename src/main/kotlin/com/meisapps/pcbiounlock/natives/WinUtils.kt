@@ -62,7 +62,6 @@ object WinUtils : NativeUtils() {
     private const val UF_ACCOUNTDISABLE = 0x00000002
     private const val UF_LOCKOUT = 0x00000010
     private const val UF_NORMAL_ACCOUNT = 0x00000200
-    private const val UF_DONT_EXPIRE_PASSWD = 0x00010000
 
     fun hasUserPassword(userName: String): Boolean {
         val split = userName.split("\\")
@@ -109,8 +108,7 @@ object WinUtils : NativeUtils() {
         for (ui in userInfos) {
             if(ui.usri1_flags and UF_ACCOUNTDISABLE == UF_ACCOUNTDISABLE ||
                 ui.usri1_flags and UF_LOCKOUT == UF_LOCKOUT ||
-                ui.usri1_flags and UF_NORMAL_ACCOUNT != UF_NORMAL_ACCOUNT ||
-                ui.usri1_flags and UF_DONT_EXPIRE_PASSWD != UF_DONT_EXPIRE_PASSWD)
+                ui.usri1_flags and UF_NORMAL_ACCOUNT != UF_NORMAL_ACCOUNT)
                 continue
 
             val qualifiedName = resolveMSAccount(computerDomain, ui.usri1_name)
@@ -144,10 +142,8 @@ object WinUtils : NativeUtils() {
 
         val userNameStr = userNameBuf.value.getString(0)
         val domainStr = domainBuf.value.getString(0)
-
         Wtsapi32Lib.INSTANCE.WTSFreeMemory(userNameBuf.value)
         Wtsapi32Lib.INSTANCE.WTSFreeMemory(domainBuf.value)
-
         return resolveMSAccount(domainStr, userNameStr)
     }
 
