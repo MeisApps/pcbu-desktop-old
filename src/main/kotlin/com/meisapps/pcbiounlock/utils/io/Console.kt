@@ -20,10 +20,10 @@ object Console {
             logMsg(System.lineSeparator())
     }
 
-    fun println(message: String) {
+    fun println(message: String, shouldLog: Boolean = true) {
         kotlin.io.println(message)
         System.out.flush()
-        if(enableLogging)
+        if(enableLogging && shouldLog)
             logMsg(message + System.lineSeparator())
     }
 

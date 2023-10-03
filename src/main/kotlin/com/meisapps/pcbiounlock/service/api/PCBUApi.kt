@@ -3,6 +3,7 @@ package com.meisapps.pcbiounlock.service.api
 import com.meisapps.pcbiounlock.service.ServiceInstaller
 import com.meisapps.pcbiounlock.shell.Shell
 import com.meisapps.pcbiounlock.utils.ErrorMessageException
+import com.meisapps.pcbiounlock.utils.extensions.toKString
 import com.meisapps.pcbiounlock.utils.host.HostOS
 import com.meisapps.pcbiounlock.utils.host.OperatingSystem
 import com.meisapps.pcbiounlock.utils.io.Console
@@ -18,12 +19,18 @@ import java.io.File
 @Structure.FieldOrder("name", "address")
 class PCBUBluetoothDevice : Structure() {
     @JvmField var name = ByteArray(255)
-    @JvmField var address = ByteArray(19)
+    @JvmField var address = ByteArray(18)
+}
+
+@Structure.FieldOrder("ipAddr", "macAddr")
+class PCBUIpAndMac : Structure() {
+    @JvmField var ipAddr = ByteArray(16)
+    @JvmField var macAddr = ByteArray(18)
 }
 
 interface PCBULibrary : Library {
     fun api_free(ptr: Pointer)
-    fun get_local_ip(): Pointer?
+    fun get_local_ip_and_mac(): PCBUIpAndMac?
 
     fun bt_is_available(): Boolean
     fun bt_scan_devices(count: IntByReference): PCBUBluetoothDevice?
@@ -52,14 +59,26 @@ object PCBUApi {
     }
 
     fun getLocalIP(): String {
-        val ptr = INSTANCE.get_local_ip()
+        val ptr = INSTANCE.get_local_ip_and_mac()
         if(ptr == null) {
             Console.println("Error getting local ip address !")
             return I18n.get("error")
         }
 
-        val str = ptr.getString(0)
-        INSTANCE.api_free(ptr)
+        val str = ptr.ipAddr.toKString(Charsets.UTF_8)
+        INSTANCE.api_free(ptr.pointer)
+        return str
+    }
+
+    fun getMacAddress(): String {
+        val ptr = INSTANCE.get_local_ip_and_mac()
+        if(ptr == null) {
+            Console.println("Error getting mac address !")
+            return ""
+        }
+
+        val str = ptr.macAddr.toKString(Charsets.UTF_8)
+        INSTANCE.api_free(ptr.pointer)
         return str
     }
 }

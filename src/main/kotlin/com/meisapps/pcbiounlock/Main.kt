@@ -87,6 +87,7 @@ fun runMain(args: Array<String>) {
     Console.println("=== PC Bio Unlock (v${VersionInfo.getAppVersion()}) ===")
     Console.println("=> CPU: ${HostUtils.getCpuArchitecture()}")
     Console.println("=> IP: ${PCBUApi.getLocalIP()}")
+    Console.println("=> MAC: ${PCBUApi.getMacAddress()}", false)
     Console.println("=> Device Name: ${HostUtils.getDeviceName()}")
     Console.println("=> Device ID: ${NativeUtils.getDeviceUUID()}")
     Console.println("=> Has Bluetooth: ${BluetoothApi.isBluetoothAvailable()}")
@@ -106,7 +107,6 @@ fun runMain(args: Array<String>) {
 fun main(args: Array<String>) {
     if(!GraphicsEnvironment.isHeadless())
         FlatDarkLaf.setup()
-
     Thread.setDefaultUncaughtExceptionHandler { _, e ->
         Console.println(e.stackTraceToString())
         Console.fatal(I18n.get("unknown_error"))

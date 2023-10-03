@@ -8,7 +8,6 @@ import com.meisapps.pcbiounlock.server.packets.DataWriterStream
 import com.meisapps.pcbiounlock.server.packets.Packet
 import com.meisapps.pcbiounlock.service.DeviceStorage
 import com.meisapps.pcbiounlock.service.api.PCBUApi
-import com.meisapps.pcbiounlock.shell.Shell
 import com.meisapps.pcbiounlock.storage.AppSettings
 import com.meisapps.pcbiounlock.utils.ErrorMessageException
 import com.meisapps.pcbiounlock.utils.host.HostUtils
@@ -40,7 +39,7 @@ class PacketPairDevice(var version: String, var deviceName: String, var messagin
 }
 
 class PacketPairResult(var isPaired: Boolean, var message: String,
-                       var pairingId: String, var name: String, var hostOS: String, var pairingMethod: PairingMethod,
+                       var pairingId: String, var name: String, var hostOS: String, var pairingMethod: PairingMethod, var macAddress: String,
                        var userName: String, var password: String) : Packet() {
     companion object {
         const val PacketId = 1
@@ -58,6 +57,7 @@ class PacketPairResult(var isPaired: Boolean, var message: String,
         stream.writeString(name)
         stream.writeString(hostOS)
         stream.writeInt(pairingMethod.ordinal)
+        stream.writeString(macAddress)
         stream.writeString(userName)
         stream.writeString(password)
         return stream.toByteArray()
@@ -124,14 +124,14 @@ class PairingServer(private val deviceStorage: DeviceStorage, private val pairin
             deviceStorage.savePairData(pairingId, packet.deviceName, packet.messagingToken, packet.ipAddress, bluetoothAddress, encryptionKey)
 
             val resultPacket = PacketPairResult(true, "",
-                pairingId, hostName, OperatingSystem.getString(), pairingMethod,
+                pairingId, hostName, OperatingSystem.getString(), pairingMethod, PCBUApi.getMacAddress(),
                 userData.userName, userData.password)
             client.sendPacket(resultPacket)
 
             devicePairedListener?.invoke(resultPacket)
         } catch (e: Exception) {
             Console.println(e.stackTraceToString())
-            val resultPacket = PacketPairResult(false, e.message!!, "", "", "", PairingMethod.TCP, "", "")
+            val resultPacket = PacketPairResult(false, e.message!!, "", "", "", PairingMethod.TCP, "", "", "")
             client.sendPacket(resultPacket)
 
             errorListener?.invoke(e.message!!)
