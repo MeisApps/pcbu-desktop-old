@@ -31,8 +31,12 @@ class SettingsForm(mainFrame: MainFrame) : Form(mainFrame) {
         val saveBtn = JButton(I18n.get("ui_save"))
         saveBtn.font = saveBtn.font.deriveFont(UIGlobals.DefaultButtonFontSize)
         saveBtn.addActionListener {
-            settingsPanel.applySettings()
-            frame.displayForm(MainForm(frame as MainFrame))
+            try {
+                settingsPanel.applySettings()
+                frame.displayForm(MainForm(frame as MainFrame))
+            } catch(e: Exception) {
+                JOptionPane.showMessageDialog(null, e.message, I18n.get("error"), JOptionPane.ERROR_MESSAGE)
+            }
         }
 
         val abortBtn = JButton(I18n.get("ui_abort"))

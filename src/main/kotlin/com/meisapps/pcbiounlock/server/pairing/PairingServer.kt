@@ -76,7 +76,11 @@ class PairingServer(private val deviceStorage: DeviceStorage, private val pairin
     private var errorListener: ((String) -> Unit)? = null
 
     fun getQRText() : String {
-        val data = PairingQRData(PCBUApi.getLocalIP(), AppSettings.get().pairingServerPort, pairingMethod.ordinal, encryptionKey)
+        val settings = AppSettings.get()
+        var ipStr = settings.serverIP
+        if(ipStr == "auto")
+            ipStr = PCBUApi.getLocalIP()
+        val data = PairingQRData(ipStr, settings.pairingServerPort, pairingMethod.ordinal, encryptionKey)
         return Json.encodeToString(PairingQRData.serializer(), data)
     }
 

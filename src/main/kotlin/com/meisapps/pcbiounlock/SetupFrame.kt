@@ -36,8 +36,6 @@ class SetupFrame : FormFrame() {
     val btnNext = JButton()
 
     private val setupStepContainer = JPanel()
-    private var installSettings: SettingsPanel? = null
-
     private var setupStep = SetupStep.INTRO
     private var currentForm: Form? = null
 
@@ -141,10 +139,6 @@ class SetupFrame : FormFrame() {
         setLocationRelativeTo(null)
     }
 
-    fun setInstallSettings(settings: SettingsPanel?) {
-        installSettings = settings
-    }
-
     fun prevStep(): Boolean {
         val prevStepIdx = SetupStep.values().indexOf(setupStep) - 1
         val prevStep = if(prevStepIdx < 0) null else SetupStep.values()[prevStepIdx]
@@ -222,8 +216,6 @@ class SetupFrame : FormFrame() {
                     val shell = Shell.getForPlatform()!!
                     val serviceInstaller = ServiceInstaller.getForPlatform(shell)!!
                     serviceInstaller.install()
-
-                    installSettings?.applySettings()
                 }
             }
             SetupStep.PAIR -> {
