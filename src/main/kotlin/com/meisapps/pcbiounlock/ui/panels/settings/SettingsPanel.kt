@@ -155,7 +155,7 @@ abstract class SettingsPanel(hasPlatformSettings: Boolean) : Panel {
             || unlockPort < 0 || unlockPort > 65535
             || pairingPort < 0 || pairingPort > 65535)
             throw Exception(I18n.get("ui_port_error"))
-        if(ipStr != "auto" && !InetAddresses.isInetAddress(ipStr) || !InetAddresses.isInetAddress(PCBUApi.getLocalIP()))
+        if(ipStr != "auto" && !InetAddresses.isInetAddress(ipStr) || ipStr == "auto" && !InetAddresses.isInetAddress(PCBUApi.getLocalIP()))
             throw Exception(I18n.get("ui_ip_error"))
 
         var lang = "auto"
