@@ -51,7 +51,7 @@ object StartupHelper {
 
             // Has libcrypt
             if(!LinuxUtils.hasSharedLibrary("libcrypt.so.1"))
-                throw ErrorMessageException(I18n.get("error_linux_required_dep", "libcrypt"))
+                throw ErrorMessageException(I18n.get("error_linux_required_dep", "libxcrypt-compat (libcrypt.so.1)"))
 
             // Has OpenSSL
             if(!LinuxUtils.hasSharedLibrary(ResourceHelper.LinuxCryptoFileName) || !LinuxUtils.hasSharedLibrary(ResourceHelper.LinuxSSLFileName))
