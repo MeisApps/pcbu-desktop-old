@@ -1,5 +1,7 @@
 -dontwarn okio.**
 -dontwarn okhttp3.**
+-dontwarn com.google.common.**
+-dontwarn com.formdev.flatlaf.**
 
 -keep class com.github.** { *; }
 -keep class com.sun.** { *; }
@@ -10,8 +12,6 @@
 -keep class kotlinx.** { *; }
 -keep class okio.** { *; }
 -keep class okhttp3.** { *; }
-#-keep class org.** { *; }
-#-keep class com.google.** { *; }
 
 # JNA
 -keepclassmembers class * extends com.sun.jna.** {
