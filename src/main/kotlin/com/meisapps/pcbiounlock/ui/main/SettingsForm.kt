@@ -26,8 +26,7 @@ class SettingsForm(mainFrame: MainFrame) : Form(mainFrame) {
         val titleLbl = JLabel(I18n.get("ui_service_settings"))
         titleLbl.font = titleLbl.font.deriveFont(UIGlobals.TitleFontSize)
 
-        val settingsPanel = SettingsPanel.getForPlatform(false)
-
+        val settingsPanel = SettingsPanel.getForPlatform()
         val saveBtn = JButton(I18n.get("ui_save"))
         saveBtn.font = saveBtn.font.deriveFont(UIGlobals.DefaultButtonFontSize)
         saveBtn.addActionListener {

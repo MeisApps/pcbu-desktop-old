@@ -39,11 +39,15 @@ object AppUpdater {
                     I18n.get("ui_update_available"),
                     I18n.get("info"),
                     JOptionPane.YES_NO_OPTION,
-                    JOptionPane.ERROR_MESSAGE
+                    JOptionPane.QUESTION_MESSAGE
                 )
                 if (dialogResult == JOptionPane.YES_OPTION) {
                     val link = "https://meis-apps.com/pcbu"
-                    Desktop.getDesktop().browse(URI(link))
+                    try {
+                        Desktop.getDesktop().browse(URI(link))
+                    } catch (e: UnsupportedOperationException) {
+                        JOptionPane.showMessageDialog(null, "Could not open browser. Please download it from https://meis-apps.com/pcbu", "Error", JOptionPane.ERROR_MESSAGE)
+                    }
                 }
             }
         }

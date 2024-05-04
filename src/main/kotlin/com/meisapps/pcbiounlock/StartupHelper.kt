@@ -19,7 +19,6 @@ import java.net.URI
 import javax.swing.JOptionPane
 import kotlin.system.exitProcess
 
-
 object StartupHelper {
     fun verifyEnvironment() {
         // Check platform
@@ -56,6 +55,10 @@ object StartupHelper {
             // Has OpenSSL
             if(!LinuxUtils.hasSharedLibrary(ResourceHelper.LinuxCryptoFileName) || !LinuxUtils.hasSharedLibrary(ResourceHelper.LinuxSSLFileName))
                 throw ErrorMessageException(I18n.get("error_linux_required_dep", "OpenSSL 3"))
+
+            // Has Bluetooth
+            if(!LinuxUtils.hasSharedLibrary("libbluetooth.so") || !LinuxUtils.hasSharedLibrary("libbluetooth.so.3"))
+                throw ErrorMessageException(I18n.get("error_linux_required_dep", "Bluetooth"))
 
             // SELinux check
             if(shell.runUserCommand("which getenforce").exitCode == 0 && shell.runUserCommand("getenforce").output == "Enforcing") {

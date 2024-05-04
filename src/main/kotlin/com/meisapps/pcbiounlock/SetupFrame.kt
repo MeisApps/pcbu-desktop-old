@@ -166,7 +166,9 @@ class SetupFrame : FormFrame() {
         if(nextStep == null) {
             // Finish
             isVisible = false
-            exitProcess(0)
+            val mainFrame = MainFrame()
+            mainFrame.isVisible = true
+            return
         }
 
         switchToStep(nextStep)

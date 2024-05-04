@@ -3,7 +3,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import proguard.gradle.ProGuardTask
 
 buildscript {
-    ext.kotlin_version = '1.9.0'
+    ext.kotlin_version = '1.9.23'
 
     repositories {
         google()
@@ -11,8 +11,8 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.guardsquare:proguard-gradle:7.3.2'
-        classpath 'io.github.fvarrui:javapackager:1.6.7'
+        classpath 'com.guardsquare:proguard-gradle:7.4.2'
+        classpath 'io.github.fvarrui:javapackager:1.7.5'
     }
 }
 
@@ -41,19 +41,19 @@ tasks.withType(KotlinCompile).configureEach {
 }
 
 dependencies {
-    implementation 'com.google.guava:guava:31.1-jre'
-    implementation 'org.jetbrains.kotlinx:kotlinx-serialization-json:1.4.0'
+    implementation 'com.google.guava:guava:33.2.0-jre'
+    implementation 'org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3'
 
-    implementation 'com.formdev:flatlaf:2.4'
+    implementation 'com.formdev:flatlaf:3.4.1'
     implementation 'com.beust:jcommander:1.82'
 
-    implementation 'com.google.zxing:core:3.5.0'
-    implementation 'com.google.zxing:javase:3.5.0'
+    implementation 'com.google.zxing:core:3.5.3'
+    implementation 'com.google.zxing:javase:3.5.3'
 
-    implementation 'net.java.dev.jna:jna:5.12.1'
-    implementation 'net.java.dev.jna:jna-platform:5.12.1'
+    implementation 'net.java.dev.jna:jna:5.14.0'
+    implementation 'net.java.dev.jna:jna-platform:5.14.0'
 
-    implementation 'com.squareup.okhttp3:okhttp:4.10.0'
+    implementation 'com.squareup.okhttp3:okhttp:4.12.0'
 }
 
 application {

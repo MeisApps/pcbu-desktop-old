@@ -7,7 +7,6 @@ import com.meisapps.pcbiounlock.utils.io.ResourceHelper
 import java.awt.Dimension
 import javax.swing.ImageIcon
 
-
 class MainFrame : FormFrame() {
     init {
         // Init UI

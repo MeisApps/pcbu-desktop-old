@@ -12,7 +12,6 @@ import java.awt.Insets
 import java.util.*
 import javax.swing.*
 
-
 class PairingForm(mainFrame: MainFrame) : Form(mainFrame), IPairingForm {
     private lateinit var contentPanel: Container
 
@@ -114,6 +113,7 @@ class PairingForm(mainFrame: MainFrame) : Form(mainFrame), IPairingForm {
     }
 
     override fun onDevicePaired() {
+        frame.displayForm(MainForm(frame as MainFrame))
     }
 
     private fun updatePanel(panel: PairingPanel) {

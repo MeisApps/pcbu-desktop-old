@@ -12,12 +12,12 @@ import javax.swing.JCheckBox
 import javax.swing.JLabel
 import javax.swing.JPanel
 
-class LinuxSettingsPanel(private val isSetup: Boolean) : SettingsPanel(true) {
+class LinuxSettingsPanel : SettingsPanel(true) {
     private lateinit var descLbl: JLabel
 
-    private lateinit var enableSudoChkBox: JCheckBox
-    private lateinit var enablePolkitChkBox: JCheckBox
-    private lateinit var enableLoginScreenChkBox: JCheckBox
+    lateinit var enableSudoChkBox: JCheckBox
+    lateinit var enablePolkitChkBox: JCheckBox
+    lateinit var enableLoginScreenChkBox: JCheckBox
 
     override fun init(rootPanel: JPanel) {
         val shell = Shell.getForPlatform()!!
@@ -43,17 +43,12 @@ class LinuxSettingsPanel(private val isSetup: Boolean) : SettingsPanel(true) {
         enablePolkitChkBox.font = enablePolkitChkBox.font.deriveFont(UIGlobals.DefaultFontSize)
         enablePolkitChkBox.isSelected = serviceInstaller.isPolkitEnabled()
 
-        enableLoginScreenChkBox = JCheckBox(I18n.get("ui_linux_integration_login")) // ToDo: (Pro only), validate in app through pam module
+        enableLoginScreenChkBox = JCheckBox(I18n.get("ui_linux_integration_login"))
         enableLoginScreenChkBox.font = enableLoginScreenChkBox.font.deriveFont(UIGlobals.DefaultFontSize)
         enableLoginScreenChkBox.isSelected = serviceInstaller.isLoginManagerEnabled()
         enableLoginScreenChkBox.isEnabled = serviceInstaller.isGdmInstalled() ||
                                             serviceInstaller.isKdeInstalled() ||
                                             serviceInstaller.isSddmInstalled()
-
-        if(isSetup) {
-            enableSudoChkBox.isSelected = true
-            enablePolkitChkBox.isSelected = true
-        }
 
         gbc.gridx = 0
         gbc.gridy = 0

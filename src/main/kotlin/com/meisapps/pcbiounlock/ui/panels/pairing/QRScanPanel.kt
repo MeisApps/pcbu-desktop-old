@@ -27,6 +27,9 @@ class QRScanPanel(form: IPairingForm, method: PairingMethod, userData: UserData,
         rootPanel.layout = GridBagLayout()
         server.bluetoothAddress = btAddr
         server.setOnDevicePairedListener {
+            Thread {
+                server.stop()
+            }.start()
             form.onDevicePaired()
         }
 

@@ -19,9 +19,9 @@ import javax.swing.*
 
 abstract class SettingsPanel(hasPlatformSettings: Boolean) : Panel {
     companion object {
-        fun getForPlatform(isSetup: Boolean): SettingsPanel {
+        fun getForPlatform(): SettingsPanel {
             return when(OperatingSystem.get()) {
-                HostOS.LINUX -> LinuxSettingsPanel(isSetup)
+                HostOS.LINUX -> LinuxSettingsPanel()
                 else -> CommonSettingsPanel()
             }
         }

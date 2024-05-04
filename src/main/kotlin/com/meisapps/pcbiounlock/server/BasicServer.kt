@@ -33,7 +33,6 @@ abstract class BasicServer(private val ip: String, private val port: Int, protec
 
         isRunning = true
         acceptThread.start()
-
         Console.println("Server started.")
     }
 

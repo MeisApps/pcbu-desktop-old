@@ -1,6 +1,7 @@
 package com.meisapps.pcbiounlock.ui.setup
 
 import com.meisapps.pcbiounlock.SetupFrame
+import com.meisapps.pcbiounlock.ui.panels.settings.LinuxSettingsPanel
 import com.meisapps.pcbiounlock.ui.panels.settings.SettingsPanel
 import com.meisapps.pcbiounlock.utils.text.I18n
 import java.awt.Container
@@ -8,7 +9,7 @@ import javax.swing.BoxLayout
 import javax.swing.JOptionPane
 
 class SetupInstallForm(frame: SetupFrame) : SetupStepForm(frame) {
-    private val settingsPanel = SettingsPanel.getForPlatform(true)
+    private val settingsPanel = SettingsPanel.getForPlatform()
 
     override fun createUI(contentPane: Container) {
         val rootLayout = BoxLayout(contentPane, BoxLayout.Y_AXIS)
@@ -17,6 +18,12 @@ class SetupInstallForm(frame: SetupFrame) : SetupStepForm(frame) {
     }
 
     override fun initialize() {
+        if(settingsPanel is LinuxSettingsPanel) {
+            settingsPanel.enableSudoChkBox.isSelected = true
+            settingsPanel.enablePolkitChkBox.isSelected = true
+            if(settingsPanel.enableLoginScreenChkBox.isEnabled)
+                settingsPanel.enableLoginScreenChkBox.isSelected = true
+        }
     }
 
     override fun onNextClicked() {
