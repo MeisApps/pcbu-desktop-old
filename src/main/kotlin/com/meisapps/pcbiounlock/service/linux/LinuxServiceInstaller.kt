@@ -175,6 +175,14 @@ class LinuxServiceInstaller(private val shell: Shell) : ServiceInstaller() {
         return shell.runUserCommand("which kdeinit5").exitCode == 0 || shell.runUserCommand("which kde-open").exitCode == 0
     }
 
+    fun isLightdmInstalled(): Boolean {
+        return shell.runUserCommand("systemctl cat lightdm").exitCode == 0 || shell.runUserCommand("which lightdm").exitCode == 0
+    }
+
+    fun isCinnamonInstalled(): Boolean {
+        return shell.runUserCommand("which cinnamon").exitCode == 0
+    }
+
     fun isSudoEnabled() : Boolean {
         val sudoConfig = getPamConfigFile("sudo")
         return IOUtils.findLine(sudoConfig, PamConfigLineEntry)
@@ -189,9 +197,13 @@ class LinuxServiceInstaller(private val shell: Shell) : ServiceInstaller() {
         val gdmConfig = getPamConfigFile("gdm-password")
         val sddmConfig = getPamConfigFile("sddm")
         val kdeConfig = getPamConfigFile("kde")
+        val lightdmConfig = getPamConfigFile("lightdm")
+        val cinnamonConfig = getPamConfigFile("cinnamon-screensaver")
         return IOUtils.findLine(gdmConfig, PamConfigLineEntry) ||
                 IOUtils.findLine(kdeConfig, PamConfigLineEntry) ||
-                sddmConfig.exists() && sddmConfig.readText().contains(PamSddmLineEntry)
+                sddmConfig.exists() && sddmConfig.readText().contains(PamSddmLineEntry) ||
+                IOUtils.findLine(lightdmConfig, PamConfigLineEntry) ||
+                IOUtils.findLine(cinnamonConfig, PamConfigLineEntry)
     }
 
     fun setSudoEnabled(enabled: Boolean) {
@@ -251,6 +263,24 @@ class LinuxServiceInstaller(private val shell: Shell) : ServiceInstaller() {
                 deleteConfig(kdeConfig, PamConfigLineEntry)
             }
         }
+
+        if(isLightdmInstalled()) {
+            val config = getPamConfigFile("lightdm")
+            if(enabled) {
+                generateConfig(config, PamConfigLineEntry)
+            } else {
+                deleteConfig(config, PamConfigLineEntry)
+            }
+        }
+
+        if(isCinnamonInstalled()) {
+            val config = getPamConfigFile("cinnamon-screensaver")
+            if(enabled) {
+                generateConfig(config, PamConfigLineEntry)
+            } else {
+                deleteConfig(config, PamConfigLineEntry)
+            }
+        }
     }
 
     private fun getPamConfigFile(name: String): File {
@@ -298,14 +328,13 @@ class LinuxServiceInstaller(private val shell: Shell) : ServiceInstaller() {
             return
 
         val containsBegin = IOUtils.findLine(file, "#%PAM-1.0")
-
         var fileText = ""
         val reader = BufferedReader(FileReader(file))
-
         if(!containsBegin) {
             fileText += "#%PAM-1.0" + "\n"
             fileText += lineStr + "\n"
         }
+
         while(true) {
             val line = reader.readLine() ?: break
             if(line == "#%PAM-1.0" && containsBegin) {
@@ -315,7 +344,6 @@ class LinuxServiceInstaller(private val shell: Shell) : ServiceInstaller() {
                 fileText += line + "\n"
             }
         }
-
         shell.writeBytes(file.absolutePath, fileText.toByteArray(Charsets.UTF_8))
     }
 

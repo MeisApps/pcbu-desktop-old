@@ -4,7 +4,7 @@ import com.meisapps.pcbiounlock.utils.io.Console
 
 object VersionInfo {
     fun getAppVersion(): String {
-        return "1.2.5"
+        return "1.3.0"
     }
 
     fun getProtocolVersion(): String {

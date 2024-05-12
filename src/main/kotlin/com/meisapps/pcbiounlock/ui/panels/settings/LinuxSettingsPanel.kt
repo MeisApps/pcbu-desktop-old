@@ -48,7 +48,9 @@ class LinuxSettingsPanel : SettingsPanel(true) {
         enableLoginScreenChkBox.isSelected = serviceInstaller.isLoginManagerEnabled()
         enableLoginScreenChkBox.isEnabled = serviceInstaller.isGdmInstalled() ||
                                             serviceInstaller.isKdeInstalled() ||
-                                            serviceInstaller.isSddmInstalled()
+                                            serviceInstaller.isSddmInstalled() ||
+                                            serviceInstaller.isLightdmInstalled() ||
+                                            serviceInstaller.isCinnamonInstalled()
 
         gbc.gridx = 0
         gbc.gridy = 0
