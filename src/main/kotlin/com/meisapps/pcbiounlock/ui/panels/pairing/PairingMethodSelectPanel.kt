@@ -13,7 +13,7 @@ import javax.swing.JLabel
 import javax.swing.JPanel
 import javax.swing.JRadioButton
 
-class PairingSelectPanel(form: IPairingForm, private val userData: UserData) : PairingPanel(form) {
+class PairingMethodSelectPanel(form: IPairingForm, private val userData: UserData) : PairingPanel(form) {
     private var method = PairingMethod.TCP
     private val rootPanel = JPanel()
 
@@ -22,9 +22,11 @@ class PairingSelectPanel(form: IPairingForm, private val userData: UserData) : P
 
         val tcpRadioButton = JRadioButton(I18n.get("ui_pairing_method_tcp"))
         val btRadioButton = JRadioButton(I18n.get("ui_pairing_method_bt"))
+        val cloudRadioButton = JRadioButton(I18n.get("ui_pairing_method_cloud"))
 
         val tcpDescLbl = JLabel(I18n.get("ui_pairing_method_tcp_desc"))
         val btDescLbl = JLabel(I18n.get("ui_pairing_method_bt_desc"))
+        val cloudDescLbl = JLabel(I18n.get("ui_pairing_method_cloud_desc"))
 
         tcpDescLbl.font = tcpDescLbl.font.deriveFont(UIGlobals.DefaultFontSize)
         btDescLbl.font = btDescLbl.font.deriveFont(UIGlobals.DefaultFontSize)
@@ -34,21 +36,23 @@ class PairingSelectPanel(form: IPairingForm, private val userData: UserData) : P
         tcpRadioButton.addActionListener {
             method = PairingMethod.TCP
         }
-
         btRadioButton.addActionListener {
             method = PairingMethod.BLUETOOTH
         }
         btRadioButton.isEnabled = BluetoothApi.isBluetoothAvailable()
+        cloudRadioButton.addActionListener {
+            method = PairingMethod.CLOUD_TCP
+        }
 
         val group = ButtonGroup()
         group.add(tcpRadioButton)
         group.add(btRadioButton)
+        group.add(cloudRadioButton)
         group.setSelected(tcpRadioButton.model, true)
 
         val gbc = GridBagConstraints()
         gbc.fill = GridBagConstraints.BOTH
         gbc.anchor = GridBagConstraints.LINE_START
-        gbc.insets = Insets(30, 30, 30, 30)
         gbc.weightx = 1.0
         gbc.weighty = 0.0
 
@@ -65,9 +69,18 @@ class PairingSelectPanel(form: IPairingForm, private val userData: UserData) : P
         gbc.gridx = 0
         gbc.gridy = 2
         rootPanel.add(btRadioButton, gbc)
+        gbc.insets = Insets(5, 30, 40, 30)
         gbc.gridx = 0
         gbc.gridy = 3
         rootPanel.add(btDescLbl, gbc)
+
+        /*gbc.insets = Insets(5, 30, 5, 30)
+        gbc.gridx = 0
+        gbc.gridy = 4
+        rootPanel.add(cloudRadioButton, gbc)
+        gbc.gridx = 0
+        gbc.gridy = 5
+        rootPanel.add(cloudDescLbl, gbc)*/
     }
 
     override fun initialize() {

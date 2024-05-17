@@ -54,6 +54,7 @@ dependencies {
     implementation 'net.java.dev.jna:jna-platform:5.14.0'
 
     implementation 'com.squareup.okhttp3:okhttp:4.12.0'
+    implementation 'org.bouncycastle:bcprov-jdk18on:1.78.1'
 }
 
 application {
@@ -100,8 +101,8 @@ tasks.register('proguard', ProGuardTask) {
     injars 'build/libs/pcbu-desktop.jar'
     outjars 'build/libs/PCBioUnlockDesktop_obf.jar'
 
-    libraryjars "C:/Users/fabian/.jdks/temurin-1.8.0_382/jre/lib/rt.jar"
-    libraryjars "C:/Users/fabian/.jdks/temurin-1.8.0_382/jre/lib/jce.jar"
+    libraryjars "/usr/lib/jvm/jre-1.8.0-openjdk/lib/rt.jar"
+    libraryjars "/usr/lib/jvm/jre-1.8.0-openjdk/lib/jce.jar"
     /*fileTree("${System.properties['java.home']}\\jmods\\") {
         forEach() {
             libraryjars "${it.path}"

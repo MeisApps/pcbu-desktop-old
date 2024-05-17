@@ -22,12 +22,12 @@ abstract class NativeUtils {
             val shell = Shell.getForPlatform()!!
             val uuid = when(OperatingSystem.get()) {
                 HostOS.LINUX -> shell.runUserCommand("cat /etc/machine-id").output.trim()
-                HostOS.WINDOWS -> shell.runCommand("wmic csproduct get uuid").output.replace("UUID", "").trim()
-                else -> throw Exception("Could not get device uuid !")
+                HostOS.WINDOWS -> shell.runCommand("wmic csproduct get uuid").output.replace("UUID", "").trim() // ToDo: From registry
+                else -> throw Exception("Could not get device UUID!")
             }
             if(uuid.isBlank())
-                throw Exception("Could not get device uuid !")
-            return AESUtils.sha1(uuid)
+                throw Exception("Error: Device UUID is blank!")
+            return uuid
         }
     }
 

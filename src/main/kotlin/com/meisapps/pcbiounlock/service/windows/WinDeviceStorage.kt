@@ -7,6 +7,7 @@ import com.meisapps.pcbiounlock.storage.AppSettings
 import com.meisapps.pcbiounlock.utils.ErrorMessageException
 import com.meisapps.pcbiounlock.natives.WinUtils
 import com.meisapps.pcbiounlock.utils.text.I18n
+import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import java.io.File
 import java.nio.file.Files
@@ -14,15 +15,6 @@ import java.nio.file.Paths
 
 
 class WinDeviceStorage : DeviceStorage() {
-    override fun savePairData(pairingId: String, deviceName: String, messagingToken: String, ipAddress: String, bluetoothAddress: String, encryptionKey: String) {
-        val pairedDevice = PairedDevice(pairingId, deviceName, messagingToken, ipAddress, bluetoothAddress, encryptionKey, WinUtils.getCurrentUserName())
-        if(File(getConfigFilePath()).exists())
-            protectFile(false)
-
-        Files.write(Paths.get(getConfigFilePath()), Json.encodeToString(PairedDevice.serializer(), pairedDevice).toByteArray(Charsets.UTF_8))
-        protectFile(true)
-    }
-
     override fun clearData() {
         try {
             protectFile(false)
@@ -30,31 +22,27 @@ class WinDeviceStorage : DeviceStorage() {
         Files.deleteIfExists(Paths.get(getConfigFilePath()))
     }
 
-    override fun isConfigValid(): Boolean {
-        val configFile = File(getConfigFilePath())
-        return configFile.exists() && getConfig() != null
+    override fun getConfigFilePath() : String {
+        return AppSettings.getBaseDir() + "paired_device.json"
     }
 
-    override fun isPaired(): Boolean {
-        return isConfigValid()
-    }
-
-    override fun getDeviceName(): String {
-        if(!isPaired())
-            return "None"
-        return getConfig()!!.deviceName
-    }
-
-    private fun getConfig(): PairedDevice? {
+    override fun getDevices() : List<PairedDevice> {
         return try {
             protectFile(false)
             val shell = Shell.getForPlatform()!!
             val dataStr = shell.readBytes(getConfigFilePath())!!.toString(Charsets.UTF_8)
             protectFile(true)
-            Json.decodeFromString(PairedDevice.serializer(), dataStr)
+            Json.decodeFromString<List<PairedDevice>>(dataStr)
         } catch (e: Exception) {
-            null
+            emptyList()
         }
+    }
+
+    override fun saveDevices(devices: List<PairedDevice>) {
+        if(File(getConfigFilePath()).exists())
+            protectFile(false)
+        Files.write(Paths.get(getConfigFilePath()), Json.encodeToString(devices).toByteArray(Charsets.UTF_8))
+        protectFile(true)
     }
 
     private fun protectFile(enabled: Boolean) {
@@ -67,9 +55,5 @@ class WinDeviceStorage : DeviceStorage() {
             if(shell.runCommand("icacls $filePath /grant *S-1-5-32-545:F").exitCode != 0)
                 throw ErrorMessageException(I18n.get("data_protect_error"))
         }
-    }
-
-    private fun getConfigFilePath() : String {
-        return AppSettings.getBaseDir() + "paired_device.json"
     }
 }

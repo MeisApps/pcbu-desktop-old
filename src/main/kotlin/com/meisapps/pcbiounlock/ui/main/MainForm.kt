@@ -6,15 +6,16 @@ import com.meisapps.pcbiounlock.service.ServiceInstaller
 import com.meisapps.pcbiounlock.shell.Shell
 import com.meisapps.pcbiounlock.storage.AppSettings
 import com.meisapps.pcbiounlock.ui.AboutFrame
-import com.meisapps.pcbiounlock.ui.base.Form
 import com.meisapps.pcbiounlock.ui.LoadingForm
 import com.meisapps.pcbiounlock.ui.UIGlobals
+import com.meisapps.pcbiounlock.ui.base.Form
 import com.meisapps.pcbiounlock.ui.panels.NamedPanel
 import com.meisapps.pcbiounlock.utils.VersionInfo
 import com.meisapps.pcbiounlock.utils.io.Console
 import com.meisapps.pcbiounlock.utils.text.I18n
 import java.awt.*
 import javax.swing.*
+import javax.swing.table.DefaultTableModel
 
 
 class MainForm(mainFrame: MainFrame) : Form(mainFrame) {
@@ -27,9 +28,11 @@ class MainForm(mainFrame: MainFrame) : Form(mainFrame) {
 
     private val pairStatusLbl = JLabel()
     private val pairDeviceLbl = JLabel()
+    private val pairedDevicesTbl = JTable(DefaultTableModel(arrayOf(arrayOf()), arrayOf("ID", I18n.get("ui_device_name"), I18n.get("ui_user"), I18n.get("ui_method"))))
 
     private val reinstallBtn = JButton(I18n.get("ui_reinstall"))
     private val installBtn = JButton(I18n.get("ui_install"))
+    private val pairingBtn = JButton(I18n.get("ui_pairing_pair"))
     private val pairingDeleteBtn = JButton(I18n.get("ui_pairing_delete"))
 
     override fun createUI(contentPane: Container) {
@@ -152,25 +155,36 @@ class MainForm(mainFrame: MainFrame) : Form(mainFrame) {
         pairStatusLbl.font = pairStatusLbl.font.deriveFont(UIGlobals.DefaultFontSize)
         pairDeviceLbl.font = pairDeviceLbl.font.deriveFont(UIGlobals.DefaultFontSize)
 
-        val pairingBtn = JButton(I18n.get("ui_pairing_pair"))
+        val pairedDevicesPanel = JPanel(GridLayout())
+        pairedDevicesPanel.add(JScrollPane(pairedDevicesTbl))
+        pairedDevicesTbl.columnModel.removeColumn(pairedDevicesTbl.columnModel.getColumn(0))
+        pairedDevicesTbl.selectionModel.addListSelectionListener {
+            pairingDeleteBtn.isEnabled = pairedDevicesTbl.selectedRow != -1
+        }
+
         pairingBtn.font = pairingBtn.font.deriveFont(UIGlobals.DefaultButtonFontSize)
         pairingBtn.addActionListener {
             frame.displayForm(PairingForm(frame as MainFrame))
         }
 
+        pairingDeleteBtn.isEnabled = false
         pairingDeleteBtn.font = pairingDeleteBtn.font.deriveFont(UIGlobals.DefaultButtonFontSize)
         pairingDeleteBtn.addActionListener {
-            val dialogResult = JOptionPane.showConfirmDialog(
-                frame,
-                I18n.get("ui_pairing_delete_confirm"),
-                I18n.get("warning"),
-                JOptionPane.YES_NO_OPTION
-            )
-            if (dialogResult == JOptionPane.YES_OPTION) {
-                deviceStorage.clearData()
-                updateStatus()
+            if(pairedDevicesTbl.selectedRow != -1) {
+                val dialogResult = JOptionPane.showConfirmDialog(
+                    frame,
+                    I18n.get("ui_pairing_delete_confirm"),
+                    I18n.get("warning"),
+                    JOptionPane.YES_NO_OPTION
+                )
+                if (dialogResult == JOptionPane.YES_OPTION) {
+                    val model = pairedDevicesTbl.model as DefaultTableModel
+                    val selPairingId = model.getValueAt(pairedDevicesTbl.selectedRow, 0) as String
+                    deviceStorage.removeDevice(selPairingId)
 
-                JOptionPane.showMessageDialog(frame as MainFrame, I18n.get("ui_pairing_data_deleted"), I18n.get("info"), JOptionPane.INFORMATION_MESSAGE)
+                    updateStatus()
+                    JOptionPane.showMessageDialog(frame as MainFrame, I18n.get("ui_pairing_data_deleted"), I18n.get("info"), JOptionPane.INFORMATION_MESSAGE)
+                }
             }
         }
 
@@ -181,20 +195,23 @@ class MainForm(mainFrame: MainFrame) : Form(mainFrame) {
         gbc.gridx = 1
         gbc.gridy = 0
         pairPanel.innerPanel.add(pairStatusLbl, gbc)
+
         gbc.gridx = 1
         gbc.gridy = 1
-        pairPanel.innerPanel.add(pairDeviceLbl, gbc)
-
         gbc.weightx = 1.0
         gbc.weighty = 1.0
-        gbc.insets = buttonInsets
+        gbc.gridwidth = 2
+        pairPanel.innerPanel.add(pairedDevicesPanel, gbc)
 
+        gbc.insets = buttonInsets
+        gbc.gridwidth = 1
+        gbc.weighty = 0.1
         gbc.gridx = 1
         gbc.gridy = 2
         pairPanel.innerPanel.add(pairingBtn, gbc)
 
-        gbc.gridx = 1
-        gbc.gridy = 3
+        gbc.gridx = 2
+        gbc.gridy = 2
         pairPanel.innerPanel.add(pairingDeleteBtn, gbc)
 
         pairPanel.alignmentX = Component.RIGHT_ALIGNMENT
@@ -240,7 +257,7 @@ class MainForm(mainFrame: MainFrame) : Form(mainFrame) {
         contentPane.add(titleLbl, gbc)
 
         gbc.insets = Insets(30, 30, 30, 30)
-        installPanel.innerPanel.maximumSize = Dimension(300, 300)
+        installPanel.innerPanel.maximumSize = Dimension(400, 300)
         pairPanel.innerPanel.maximumSize = Dimension(400, 300)
 
         gbc.fill = GridBagConstraints.NONE
@@ -277,6 +294,7 @@ class MainForm(mainFrame: MainFrame) : Form(mainFrame) {
     private fun updateStatus() {
         reinstallBtn.isVisible = serviceInstaller.isInstalled()
         installBtn.text = if(serviceInstaller.isInstalled()) I18n.get("ui_uninstall") else I18n.get("ui_install")
+        pairingBtn.isEnabled = serviceInstaller.isInstalled()
         if(serviceInstaller.isInstalled()) {
             installStatusLbl.text = "${I18n.get("ui_status")}: ${I18n.get("ui_installed")}"
             installVersionLbl.text = "${I18n.get("ui_installed_version")}: ${AppSettings.get().installedVersion}"
@@ -285,10 +303,13 @@ class MainForm(mainFrame: MainFrame) : Form(mainFrame) {
             installVersionLbl.text = "${I18n.get("ui_installed_version")}: ${I18n.get("ui_none")}"
         }
 
-        pairingDeleteBtn.isEnabled = deviceStorage.isPaired()
-        if(deviceStorage.isPaired()) {
+        val pairedDevicesModel = pairedDevicesTbl.model as DefaultTableModel
+        pairedDevicesModel.rowCount = 0
+        if(deviceStorage.getDevices().isNotEmpty()) {
             pairStatusLbl.text = "${I18n.get("ui_status")}: ${I18n.get("ui_paired")}"
-            pairDeviceLbl.text = "${I18n.get("ui_paired_device")}: ${deviceStorage.getDeviceName()}"
+            for(device in deviceStorage.getDevices()) {
+                pairedDevicesModel.addRow(arrayOf(device.pairingId, device.deviceName, device.userName, device.pairingMethod.toString()))
+            }
         } else {
             pairStatusLbl.text = "${I18n.get("ui_status")}: ${I18n.get("ui_not_paired")}"
             pairDeviceLbl.text = "${I18n.get("ui_paired_device")}: ${I18n.get("ui_none")}"

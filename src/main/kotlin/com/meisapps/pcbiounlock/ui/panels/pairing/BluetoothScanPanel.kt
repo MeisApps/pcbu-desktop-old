@@ -17,7 +17,7 @@ import javax.swing.JList
 import javax.swing.JPanel
 
 class BluetoothScanPanel(form: IPairingForm, private val userData: UserData) : PairingPanel(form) {
-    var selectedDevice: BluetoothApi.BluetoothDevice? = null
+    private var selectedDevice: BluetoothApi.BluetoothDevice? = null
 
     private val rootPanel = JPanel()
     private val devicesList = JList<BluetoothApi.BluetoothDevice>(DefaultListModel())

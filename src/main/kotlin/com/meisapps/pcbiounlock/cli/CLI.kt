@@ -34,7 +34,6 @@ private fun promptUser(): UserData? {
     } else {
         Console.println("Invalid password.")
     }
-
     return null
 }
 
@@ -45,8 +44,7 @@ fun runCli(args: Array<String>, shell: Shell) {
     Console.println()
     Console.println("== Info ==")
     Console.println("=> Is Installed: ${serviceInstaller.isInstalled()}")
-    Console.println("=> Is Paired: ${deviceStorage.isPaired()}")
-    Console.println("=> Paired Device Name: ${deviceStorage.getDeviceName()}")
+    Console.println("=> Is Paired: ${deviceStorage.getDevices().isNotEmpty()}")
     Console.println()
 
     var shouldInstall = !serviceInstaller.isInstalled()
@@ -78,7 +76,7 @@ fun runCli(args: Array<String>, shell: Shell) {
         serviceInstaller.install()
     }
 
-    if(!deviceStorage.isPaired() || forcePair) {
+    if(deviceStorage.getDevices().isEmpty() || forcePair) {
         val user = promptUser()
         if(user != null) {
             Console.println("Scan the QR code with the app to pair.")
@@ -94,7 +92,7 @@ fun runCli(args: Array<String>, shell: Shell) {
         }
     }
 
-    if(!shouldInstall && !shouldUninstall && !forcePair && deviceStorage.isPaired())
+    if(!shouldInstall && !shouldUninstall && !forcePair && deviceStorage.getDevices().isNotEmpty())
         Console.println("Use -h for help.")
 
     shell.release()

@@ -7,8 +7,10 @@ import com.meisapps.pcbiounlock.server.packets.DataReaderStream
 import com.meisapps.pcbiounlock.server.packets.DataWriterStream
 import com.meisapps.pcbiounlock.server.packets.Packet
 import com.meisapps.pcbiounlock.service.DeviceStorage
+import com.meisapps.pcbiounlock.service.PairedDevice
 import com.meisapps.pcbiounlock.service.api.PCBUApi
 import com.meisapps.pcbiounlock.storage.AppSettings
+import com.meisapps.pcbiounlock.utils.AESUtils
 import com.meisapps.pcbiounlock.utils.ErrorMessageException
 import com.meisapps.pcbiounlock.utils.host.HostUtils
 import com.meisapps.pcbiounlock.utils.text.StringUtils
@@ -116,19 +118,16 @@ class PairingServer(private val deviceStorage: DeviceStorage, private val pairin
     }
 
     private fun pairDevice(client: ConnectedClient, packet: PacketPairDevice) {
-        if(pairingMethod == PairingMethod.TCP)
-            bluetoothAddress = ""
-
         try {
             if(packet.version != VersionInfo.getProtocolVersion())
                 throw ErrorMessageException(I18n.get("error_app_version_mismatch"))
 
-            val pairingId = NativeUtils.getDeviceUUID()
-            val hostName = HostUtils.getDeviceName()
-            deviceStorage.savePairData(pairingId, packet.deviceName, packet.messagingToken, packet.ipAddress, bluetoothAddress, encryptionKey)
+            val pairingId = AESUtils.sha256(NativeUtils.getDeviceUUID() + packet.deviceName + userData.userName)
+            val device = PairedDevice(pairingId, pairingMethod, packet.deviceName, userData.userName, encryptionKey, packet.ipAddress, bluetoothAddress, packet.messagingToken)
+            deviceStorage.addDevice(device)
 
             val resultPacket = PacketPairResult(true, "",
-                pairingId, hostName, OperatingSystem.getString(), pairingMethod, PCBUApi.getMacAddress(),
+                pairingId, HostUtils.getDeviceName(), OperatingSystem.getString(), pairingMethod, PCBUApi.getMacAddress(),
                 userData.userName, userData.password)
             client.sendPacket(resultPacket)
 

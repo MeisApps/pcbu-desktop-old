@@ -4,11 +4,11 @@ import com.meisapps.pcbiounlock.utils.io.Console
 
 object VersionInfo {
     fun getAppVersion(): String {
-        return "1.3.0"
+        return "1.4.0"
     }
 
     fun getProtocolVersion(): String {
-        return "0.8.0"
+        return "1.0.0"
     }
 
     fun compareVersion(thisVersion: String, otherVersion: String): Int {

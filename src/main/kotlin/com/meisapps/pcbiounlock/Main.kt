@@ -19,9 +19,12 @@ import com.meisapps.pcbiounlock.utils.VersionInfo
 import com.meisapps.pcbiounlock.utils.host.HostUtils
 import com.meisapps.pcbiounlock.utils.io.Console
 import com.meisapps.pcbiounlock.utils.text.I18n
+import org.bouncycastle.jce.provider.BouncyCastleProvider
 import java.awt.EventQueue
 import java.awt.GraphicsEnvironment
+import java.security.Security
 import kotlin.system.exitProcess
+
 
 private fun createAndShowGUI(showSetup: Boolean) {
     val frame = if(showSetup) SetupFrame() else MainFrame()
@@ -30,6 +33,7 @@ private fun createAndShowGUI(showSetup: Boolean) {
 
 fun runMain(args: Array<String>) {
     // Init
+    Security.addProvider(BouncyCastleProvider())
     StartupHelper.verifyEnvironment()
 
     // Args

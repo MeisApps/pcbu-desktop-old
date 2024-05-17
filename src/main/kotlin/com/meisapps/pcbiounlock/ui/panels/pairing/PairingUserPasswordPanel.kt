@@ -81,7 +81,7 @@ class PairingUserPasswordPanel(form: IPairingForm, private val userName: String)
         }
 
         val userData = UserData(userName, pwInput.password.concatToString())
-        val selectPanel = PairingSelectPanel(form, userData)
+        val selectPanel = PairingMethodSelectPanel(form, userData)
 
         form.getFrame().rootPane.defaultButton = null
         return selectPanel
