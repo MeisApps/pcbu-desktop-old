@@ -17,7 +17,7 @@ class WindowsShell : Shell() {
         return runUserCommand("net session").exitCode == 0
     }
 
-    override fun restartAsAdmin(args: Array<String>) {
+    override fun restartAsAdmin(args: Array<String>, classPath: String) {
         val jarPath = File(
             Shell::class.java.protectionDomain.codeSource.location
                 .toURI()
@@ -35,13 +35,21 @@ class WindowsShell : Shell() {
                 return
             }
         } else {
+            val isOldJava = System.getProperty("java.version").startsWith("1.")
             val javaExe = System.getProperty("java.home") + "/bin/javaw.exe"
-            if(runUserCommand("powershell -Command \"Start-Process '$javaExe' -ArgumentList '-jar \\\"$jarPath\\\"' -Verb RunAs\"").exitCode != 0) {
+            val javaArgs = if(classPath.isBlank())
+                "-jar \\\"$jarPath\\\""
+            else
+                if(isOldJava)
+                    "-cp \\\"$classPath\\\" -p \\\"$classPath\\\" -jar \\\"$jarPath\\\""
+                else
+                    "-cp \\\"$classPath\\\" -jar \\\"$jarPath\\\""
+
+            if(runUserCommand("powershell -Command \"Start-Process '$javaExe' -ArgumentList '$javaArgs' -Verb RunAs\"").exitCode != 0) {
                 Console.fatal("Please run the app as an administrator.")
                 return
             }
         }
-
         exitProcess(0)
     }
 

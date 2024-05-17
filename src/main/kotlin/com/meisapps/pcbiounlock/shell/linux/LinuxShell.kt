@@ -11,6 +11,7 @@ import java.nio.file.Paths
 import java.nio.file.StandardOpenOption
 import java.util.*
 import java.util.concurrent.atomic.AtomicInteger
+import kotlin.system.exitProcess
 
 class LinuxShell : Shell() {
     private lateinit var process: Process
@@ -25,19 +26,31 @@ class LinuxShell : Shell() {
         return user.toInt() == 0
     }
 
-    override fun restartAsAdmin(args: Array<String>) {
+    override fun restartAsAdmin(args: Array<String>, classPath: String) {
         val jarPath = File(
             Shell::class.java.protectionDomain.codeSource.location
                 .toURI()
         ).path
 
-        if(!jarPath.endsWith(".jar")) {
-            println("IDE detected.")
+        if(!jarPath.endsWith(".jar"))
             return
+
+        if(classPath.isNotBlank()) {
+            val isOldJava = System.getProperty("java.version").startsWith("1.")
+            val javaExe = System.getProperty("java.home") + "/bin/java"
+            val javaArgs = if(isOldJava)
+                "-cp '$classPath' -p '$classPath' -jar '$jarPath'"
+            else
+                "-cp '$classPath' -jar '$jarPath'"
+            val builder = ProcessBuilder("bash", "-c", "'$javaExe' $javaArgs")
+            builder.start()
+            exitProcess(0)
         }
 
-        if(GraphicsEnvironment.isHeadless())
+        if(GraphicsEnvironment.isHeadless()) {
             Console.fatal("Please run as root.\nExample: sudo java -jar PCBioUnlock.jar")
+            return
+        }
     }
 
     override fun runUserCommand(cmd: String): CommandResult {

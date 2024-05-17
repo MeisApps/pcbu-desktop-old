@@ -29,7 +29,7 @@ abstract class Shell {
     }
 
     abstract fun isRunningAsAdmin(): Boolean
-    abstract fun restartAsAdmin(args: Array<String>)
+    abstract fun restartAsAdmin(args: Array<String>, classPath: String)
 
     abstract fun runUserCommand(cmd: String): CommandResult
 

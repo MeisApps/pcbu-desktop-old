@@ -1,7 +1,10 @@
+-keep class com.meisapps.pcbiounlock.MainKt { *; }
+
 -dontwarn okio.**
 -dontwarn okhttp3.**
 -dontwarn com.google.common.**
 -dontwarn com.formdev.flatlaf.**
+-dontwarn org.bouncycastle.**
 
 -keep class com.github.** { *; }
 -keep class com.sun.** { *; }

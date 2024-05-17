@@ -71,7 +71,7 @@ fun runMain(args: Array<String>) {
 
     // Check admin
     if(!shell.isRunningAsAdmin()) {
-        shell.restartAsAdmin(args)
+        shell.restartAsAdmin(args, "")
     }
     try {
         shell.acquire()
@@ -105,25 +105,5 @@ fun runMain(args: Array<String>) {
         runCli(args, shell)
     } else {
         EventQueue.invokeLater { createAndShowGUI(shouldRunSetup) }
-    }
-}
-
-fun main(args: Array<String>) {
-    if(!GraphicsEnvironment.isHeadless())
-        FlatDarkLaf.setup()
-    Thread.setDefaultUncaughtExceptionHandler { _, e ->
-        Console.println(e.stackTraceToString())
-        Console.fatal(I18n.get("unknown_error"))
-    }
-
-    try {
-        runMain(args)
-    } catch (error: Error) {
-        Console.println(error.stackTraceToString())
-        Console.fatal(I18n.get("unknown_error"))
-    } catch (e: Exception) {
-        Console.println(e.stackTraceToString())
-        Console.fatal(e.message ?: I18n.get("unknown_error"))
-        return
     }
 }

@@ -2,6 +2,7 @@ package com.meisapps.pcbiounlock.utils.io
 
 import com.meisapps.pcbiounlock.utils.text.I18n
 import java.awt.GraphicsEnvironment
+import java.io.File
 import java.nio.file.Files
 import java.nio.file.Paths
 import java.nio.file.StandardOpenOption
@@ -42,6 +43,9 @@ object Console {
     }
 
     private fun logMsg(message: String) {
-        Files.write(Paths.get("PCBioUnlock.log"), message.toByteArray(Charsets.UTF_8), StandardOpenOption.CREATE, StandardOpenOption.APPEND)
+        val pcbuDir = File("PCBioUnlock")
+        if(!pcbuDir.exists())
+            pcbuDir.mkdirs()
+        Files.write(Paths.get(pcbuDir.absolutePath, "PCBioUnlock.log"), message.toByteArray(Charsets.UTF_8), StandardOpenOption.CREATE, StandardOpenOption.APPEND)
     }
 }

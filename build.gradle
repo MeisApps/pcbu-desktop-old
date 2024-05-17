@@ -29,17 +29,6 @@ repositories {
     mavenCentral()
 }
 
-compileJava {
-    sourceCompatibility = '1.8'
-    targetCompatibility = '1.8'
-}
-
-tasks.withType(KotlinCompile).configureEach {
-    kotlinOptions {
-        jvmTarget = "1.8"
-    }
-}
-
 dependencies {
     implementation 'com.google.guava:guava:33.2.0-jre'
     implementation 'org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3'
@@ -57,24 +46,48 @@ dependencies {
     implementation 'org.bouncycastle:bcprov-jdk18on:1.78.1'
 }
 
-application {
-    mainClass = 'com.meisapps.pcbiounlock.MainKt'
+compileJava {
+    sourceCompatibility = '1.8'
+    targetCompatibility = '1.8'
+}
+
+tasks.withType(KotlinCompile).configureEach {
+    kotlinOptions {
+        jvmTarget = "1.8"
+    }
+}
+
+tasks.register('copyDepJars', Copy) {
+    into "$buildDir/libs/depjars/"
+    from configurations.runtimeClasspath.filter {
+        it.name.contains("bcprov-jdk18on")
+    }
 }
 
 jar {
     manifest {
         attributes(
-                'Main-Class': 'com.meisapps.pcbiounlock.MainKt'
+            'Main-Class': 'com.meisapps.pcbiounlock.InitClassLoader',
+            'Class-Path': 'PCBioUnlock/bcprov-jdk18on-1.78.1.jar',
+            'Module-Path': 'PCBioUnlock/bcprov-jdk18on-1.78.1.jar',
         )
         duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     }
+    dependsOn copyDepJars
+    from("$buildDir/libs/depjars") {
+        into 'libs'
+    }
     from {
-        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+        configurations.runtimeClasspath.filter {
+            !(it.name.contains("bcprov-jdk18on"))
+        }.collect {
+            it.isDirectory() ? it : zipTree(it)
+        }
     }
 }
 
 tasks.register('packageWin', PackageTask) {
-    mainClass = 'com.meisapps.pcbiounlock.MainKt'
+    mainClass = 'com.meisapps.pcbiounlock.InitClassLoader'
     runnableJar = new File('build/libs/PCBioUnlockDesktop_obf.jar')
     bundleJre = false
     generateInstaller = false
@@ -85,7 +98,7 @@ tasks.register('packageWin', PackageTask) {
 }
 
 tasks.register('packageLinux', PackageTask) {
-    mainClass = 'com.meisapps.pcbiounlock.MainKt'
+    mainClass = 'com.meisapps.pcbiounlock.InitClassLoader'
     runnableJar = new File('build/libs/PCBioUnlockDesktop_obf.jar')
     bundleJre = false
     generateInstaller = false
@@ -103,6 +116,8 @@ tasks.register('proguard', ProGuardTask) {
 
     libraryjars "/usr/lib/jvm/jre-1.8.0-openjdk/lib/rt.jar"
     libraryjars "/usr/lib/jvm/jre-1.8.0-openjdk/lib/jce.jar"
+    libraryjars "C:/Users/fabian/.jdks/temurin-1.8.0_382/jre/lib/rt.jar"
+    libraryjars "C:/Users/fabian/.jdks/temurin-1.8.0_382/jre/lib/jce.jar"
     /*fileTree("${System.properties['java.home']}\\jmods\\") {
         forEach() {
             libraryjars "${it.path}"
