@@ -122,7 +122,7 @@ class PairingServer(private val deviceStorage: DeviceStorage, private val pairin
             if(packet.version != VersionInfo.getProtocolVersion())
                 throw ErrorMessageException(I18n.get("error_app_version_mismatch"))
 
-            val pairingId = AESUtils.sha256(NativeUtils.getDeviceUUID() + packet.deviceName + userData.userName)
+            val pairingId = AESUtils.sha256(NativeUtils.getForPlatform().getDeviceUUID() + packet.deviceName + userData.userName)
             val device = PairedDevice(pairingId, pairingMethod, packet.deviceName, userData.userName, encryptionKey, packet.ipAddress, bluetoothAddress, packet.messagingToken)
             deviceStorage.addDevice(device)
 

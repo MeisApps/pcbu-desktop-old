@@ -1,5 +1,6 @@
 package com.meisapps.pcbiounlock.natives
 
+import com.meisapps.pcbiounlock.shell.Shell
 import com.sun.jna.Library
 import com.sun.jna.Native
 import com.sun.jna.Pointer
@@ -89,6 +90,23 @@ object WinUtils : NativeUtils() {
         return result
     }
 
+    override fun getDeviceUUID(): String {
+        val shell = Shell.getForPlatform()!!
+        var uuid = shell.runCommand("wmic csproduct get uuid").output.replace("UUID", "").trim()
+        if(uuid.isNotBlank())
+            return uuid
+        try {
+            uuid = Advapi32Util.registryGetStringValue(
+                WinReg.HKEY_LOCAL_MACHINE,
+                "SOFTWARE\\Microsoft\\Cryptography",
+                "MachineGuid"
+            )
+        } catch (_: Exception) { }
+        if(uuid.isBlank())
+            throw Exception("Error: Device UUID is blank!")
+        return uuid
+    }
+
     @Suppress("UNCHECKED_CAST")
     override fun getAllUsers(): List<String> {
         val userList = ArrayList<String>()
@@ -101,7 +119,7 @@ object WinUtils : NativeUtils() {
         val result = Netapi32.INSTANCE.NetUserEnum(null, 1, 0, bufPtr, LMCons.MAX_PREFERRED_LENGTH,
             entriesRead, totalEntries, null)
         if(result != LMErr.NERR_Success)
-            throw Exception("Could not get computer users !")
+            throw Exception("Could not get computer users!")
 
         val userInfo = USER_INFO_1(bufPtr.value)
         val userInfos = userInfo.toArray(entriesRead.value) as Array<USER_INFO_1>
@@ -122,7 +140,7 @@ object WinUtils : NativeUtils() {
     override fun getCurrentUserName(): String {
         val id = Kernel32Lib.INSTANCE.WTSGetActiveConsoleSessionId()
         if(id.toLong() == 0xFFFFFFFF)
-            throw Exception("Could not get user session !")
+            throw Exception("Could not get user session!")
 
         val userNameBuf = PointerByReference()
         val userNameSize = IntByReference()
@@ -130,7 +148,7 @@ object WinUtils : NativeUtils() {
             WTS_CURRENT_SERVER_HANDLE, id,
             WTS_INFO_CLASS.WTSUserName, userNameBuf, userNameSize)
         if(!result)
-            throw Exception("Could not get user name !")
+            throw Exception("Could not get user name!")
 
         val domainBuf = PointerByReference()
         val domainSize = IntByReference()
@@ -138,7 +156,7 @@ object WinUtils : NativeUtils() {
             WTS_CURRENT_SERVER_HANDLE, id,
             WTS_INFO_CLASS.WTSDomainName, domainBuf, domainSize)
         if(!result)
-            throw Exception("Could not get user domain !")
+            throw Exception("Could not get user domain!")
 
         val userNameStr = userNameBuf.value.getString(0)
         val domainStr = domainBuf.value.getString(0)

@@ -93,7 +93,7 @@ fun runMain(args: Array<String>) {
     Console.println("=> IP: ${PCBUApi.getLocalIP()}")
     Console.println("=> MAC: ${PCBUApi.getMacAddress()}", false)
     Console.println("=> Device Name: ${HostUtils.getDeviceName()}")
-    Console.println("=> Device ID: ${NativeUtils.getDeviceUUID()}")
+    Console.println("=> Device ID: ${NativeUtils.getForPlatform().getDeviceUUID()}", false)
     Console.println("=> Has Bluetooth: ${BluetoothApi.isBluetoothAvailable()}")
     Console.println("=> Current User: ${NativeUtils.getForPlatform().getCurrentUserName()}")
     Console.println()

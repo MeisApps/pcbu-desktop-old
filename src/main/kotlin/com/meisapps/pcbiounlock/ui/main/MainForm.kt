@@ -11,6 +11,7 @@ import com.meisapps.pcbiounlock.ui.UIGlobals
 import com.meisapps.pcbiounlock.ui.base.Form
 import com.meisapps.pcbiounlock.ui.panels.NamedPanel
 import com.meisapps.pcbiounlock.utils.VersionInfo
+import com.meisapps.pcbiounlock.utils.host.OperatingSystem
 import com.meisapps.pcbiounlock.utils.io.Console
 import com.meisapps.pcbiounlock.utils.text.I18n
 import java.awt.*
@@ -164,7 +165,11 @@ class MainForm(mainFrame: MainFrame) : Form(mainFrame) {
 
         pairingBtn.font = pairingBtn.font.deriveFont(UIGlobals.DefaultButtonFontSize)
         pairingBtn.addActionListener {
-            frame.displayForm(PairingForm(frame as MainFrame))
+            if(OperatingSystem.isWindows && deviceStorage.getDevices().isNotEmpty()) {
+                JOptionPane.showMessageDialog(frame, I18n.get("error_win_multi_user"), I18n.get("error"), JOptionPane.ERROR_MESSAGE)
+            } else {
+                frame.displayForm(PairingForm(frame as MainFrame))
+            }
         }
 
         pairingDeleteBtn.isEnabled = false
@@ -181,9 +186,7 @@ class MainForm(mainFrame: MainFrame) : Form(mainFrame) {
                     val model = pairedDevicesTbl.model as DefaultTableModel
                     val selPairingId = model.getValueAt(pairedDevicesTbl.selectedRow, 0) as String
                     deviceStorage.removeDevice(selPairingId)
-
                     updateStatus()
-                    JOptionPane.showMessageDialog(frame as MainFrame, I18n.get("ui_pairing_data_deleted"), I18n.get("info"), JOptionPane.INFORMATION_MESSAGE)
                 }
             }
         }

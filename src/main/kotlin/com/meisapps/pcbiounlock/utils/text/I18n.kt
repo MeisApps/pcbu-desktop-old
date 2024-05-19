@@ -24,7 +24,12 @@ object I18n {
             bundle.getString(key)
         } catch (e: Exception) {
             Console.println("Warning: Missing I18n key $key for locale ${Locale.getDefault()}.")
-            getDefaultBundle().getString(key)
+            try {
+                getDefaultBundle().getString(key)
+            } catch (e: Exception) {
+                Console.println("Warning: Missing I18n key $key for locale ${Locale.US}.")
+                key
+            }
         }
     }
 

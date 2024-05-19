@@ -59,11 +59,19 @@ object LinuxUtils : NativeUtils() {
         return "/etc/pam.d/"
     }
 
+    override fun getDeviceUUID(): String {
+        val shell = Shell.getForPlatform()!!
+        val uuid = shell.runUserCommand("cat /etc/machine-id").output.trim()
+        if(uuid.isBlank())
+            throw Exception("Error: Device UUID is blank!")
+        return uuid
+    }
+
     override fun getAllUsers(): List<String> {
         val shell = Shell.getForPlatform()!!
         val shadowStr = shell.runCommand("cat /etc/passwd")
         if(shadowStr.exitCode != 0)
-            throw Exception("Could not check for user password !")
+            throw Exception("Could not check for user password!")
 
         val userList = ArrayList<String>()
         val scanner = Scanner(shadowStr.output)
@@ -86,7 +94,6 @@ object LinuxUtils : NativeUtils() {
 
     override fun getCurrentUserName(): String {
         var uid: Int? = null
-
         val sudoUid = System.getenv("SUDO_UID")
         if(sudoUid != null) {
             uid = sudoUid.toIntOrNull()
@@ -96,14 +103,14 @@ object LinuxUtils : NativeUtils() {
         }
 
         val userName = CLib.INSTANCE.getpwuid(uid)
-        return userName?.pw_name ?: throw Exception("Could not determine username !")
+        return userName?.pw_name ?: throw Exception("Could not determine username!")
     }
 
     override fun checkUserLogin(userName: String, password: String): Boolean {
         val shell = Shell.getForPlatform()!!
         val shadowStr = shell.runCommand("cat /etc/shadow")
         if(shadowStr.exitCode != 0)
-            throw Exception("Could not check for user password !")
+            throw Exception("Could not check for user password!")
 
         var encryptedPwd: String? = null
         val scanner = Scanner(shadowStr.output)

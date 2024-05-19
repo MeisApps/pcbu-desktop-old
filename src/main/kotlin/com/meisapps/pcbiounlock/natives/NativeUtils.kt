@@ -1,11 +1,12 @@
 package com.meisapps.pcbiounlock.natives
 
 import com.meisapps.pcbiounlock.shell.Shell
-import com.meisapps.pcbiounlock.utils.AESUtils
 import com.meisapps.pcbiounlock.utils.ErrorMessageException
 import com.meisapps.pcbiounlock.utils.host.HostOS
 import com.meisapps.pcbiounlock.utils.host.OperatingSystem
 import com.meisapps.pcbiounlock.utils.text.I18n
+import com.sun.jna.platform.win32.Advapi32Util
+import com.sun.jna.platform.win32.WinReg
 
 
 abstract class NativeUtils {
@@ -17,20 +18,9 @@ abstract class NativeUtils {
                 else -> throw ErrorMessageException(I18n.get("unsupported_os"))
             }
         }
-
-        fun getDeviceUUID(): String {
-            val shell = Shell.getForPlatform()!!
-            val uuid = when(OperatingSystem.get()) {
-                HostOS.LINUX -> shell.runUserCommand("cat /etc/machine-id").output.trim()
-                HostOS.WINDOWS -> shell.runCommand("wmic csproduct get uuid").output.replace("UUID", "").trim() // ToDo: From registry
-                else -> throw Exception("Could not get device UUID!")
-            }
-            if(uuid.isBlank())
-                throw Exception("Error: Device UUID is blank!")
-            return uuid
-        }
     }
 
+    abstract fun getDeviceUUID(): String
     abstract fun getAllUsers(): List<String>
     abstract fun getCurrentUserName(): String
     abstract fun checkUserLogin(userName: String, password: String): Boolean
