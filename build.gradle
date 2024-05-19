@@ -1,6 +1,7 @@
 import io.github.fvarrui.javapackager.gradle.PackageTask
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import proguard.gradle.ProGuardTask
+import org.gradle.nativeplatform.platform.internal.DefaultNativePlatform
 
 buildscript {
     ext.kotlin_version = '1.9.23'
@@ -114,10 +115,14 @@ tasks.register('proguard', ProGuardTask) {
     injars 'build/libs/pcbu-desktop.jar'
     outjars 'build/libs/PCBioUnlockDesktop_obf.jar'
 
-    libraryjars "/usr/lib/jvm/jre-1.8.0-openjdk/lib/rt.jar"
-    libraryjars "/usr/lib/jvm/jre-1.8.0-openjdk/lib/jce.jar"
-    libraryjars "C:/Users/fabian/.jdks/temurin-1.8.0_382/jre/lib/rt.jar"
-    libraryjars "C:/Users/fabian/.jdks/temurin-1.8.0_382/jre/lib/jce.jar"
+    def os = DefaultNativePlatform.getCurrentOperatingSystem()
+    if (os.isWindows()) {
+        libraryjars "C:/Users/fabian/.jdks/temurin-1.8.0_382/jre/lib/rt.jar"
+        libraryjars "C:/Users/fabian/.jdks/temurin-1.8.0_382/jre/lib/jce.jar"
+    } else if (os.isLinux()) {
+        libraryjars "/usr/lib/jvm/jre-1.8.0-openjdk/lib/rt.jar"
+        libraryjars "/usr/lib/jvm/jre-1.8.0-openjdk/lib/jce.jar"
+    }
     /*fileTree("${System.properties['java.home']}\\jmods\\") {
         forEach() {
             libraryjars "${it.path}"

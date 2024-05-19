@@ -1,7 +1,5 @@
 package com.meisapps.pcbiounlock.shell
 
-import com.meisapps.pcbiounlock.shell.linux.LinuxShell
-import com.meisapps.pcbiounlock.shell.windows.WindowsShell
 import com.meisapps.pcbiounlock.utils.host.OperatingSystem
 
 class CommandResult {

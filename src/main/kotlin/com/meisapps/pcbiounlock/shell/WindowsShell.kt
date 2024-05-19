@@ -1,7 +1,5 @@
-package com.meisapps.pcbiounlock.shell.windows
+package com.meisapps.pcbiounlock.shell
 
-import com.meisapps.pcbiounlock.shell.CommandResult
-import com.meisapps.pcbiounlock.shell.Shell
 import com.meisapps.pcbiounlock.utils.io.Console
 import java.io.File
 import java.io.InputStream
@@ -22,7 +20,6 @@ class WindowsShell : Shell() {
             Shell::class.java.protectionDomain.codeSource.location
                 .toURI()
         ).path
-
         val isExe = jarPath.endsWith(".exe")
         if(!jarPath.endsWith(".jar") && !isExe) {
             Console.fatal("Please run the app as an administrator.")
@@ -41,10 +38,9 @@ class WindowsShell : Shell() {
                 "-jar \\\"$jarPath\\\""
             else
                 if(isOldJava)
-                    "-cp \\\"$classPath\\\" -p \\\"$classPath\\\" -jar \\\"$jarPath\\\""
-                else
                     "-cp \\\"$classPath\\\" -jar \\\"$jarPath\\\""
-
+                else
+                    "-cp \\\"$classPath\\\" -p \\\"$classPath\\\" -jar \\\"$jarPath\\\""
             if(runUserCommand("powershell -Command \"Start-Process '$javaExe' -ArgumentList '$javaArgs' -Verb RunAs\"").exitCode != 0) {
                 Console.fatal("Please run the app as an administrator.")
                 return

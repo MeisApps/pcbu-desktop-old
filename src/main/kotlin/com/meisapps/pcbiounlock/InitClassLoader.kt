@@ -2,6 +2,7 @@ package com.meisapps.pcbiounlock
 
 import com.formdev.flatlaf.FlatDarkLaf
 import com.meisapps.pcbiounlock.shell.Shell
+import com.meisapps.pcbiounlock.utils.ErrorMessageException
 import com.meisapps.pcbiounlock.utils.io.Console
 import com.meisapps.pcbiounlock.utils.text.I18n
 import java.awt.GraphicsEnvironment
@@ -29,7 +30,6 @@ object InitClassLoader {
                 isBcLoadable = true
             } catch (_: Exception) {}
 
-            var classPath = ""
             val jarFile = File(InitClassLoader::class.java.protectionDomain.codeSource.location.toURI())
             if (jarFile.isFile && !isBcLoadable) {
                 JarFile(jarFile).use { jar ->
@@ -49,9 +49,12 @@ object InitClassLoader {
                         }
                     }
 
-                    classPath = Paths.get(jarDirectory.absolutePath, "bcprov-jdk18on-1.78.1.jar").absolutePathString()
-                    val shell = Shell.getForPlatform()!!
-                    shell.restartAsAdmin(args, classPath)
+                    val classPath = Paths.get(jarDirectory.absolutePath, "bcprov-jdk18on-1.78.1.jar").absolutePathString()
+                    val shell = Shell.getForPlatform()
+                    if(shell != null)
+                        shell.restartAsAdmin(args, classPath)
+                    else
+                        throw ErrorMessageException(I18n.get("unsupported_os"))
                 }
             }
 

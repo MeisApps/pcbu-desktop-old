@@ -1,8 +1,6 @@
-package com.meisapps.pcbiounlock.shell.linux
+package com.meisapps.pcbiounlock.shell
 
 import com.google.common.io.BaseEncoding
-import com.meisapps.pcbiounlock.shell.CommandResult
-import com.meisapps.pcbiounlock.shell.Shell
 import com.meisapps.pcbiounlock.utils.io.Console
 import java.awt.GraphicsEnvironment
 import java.io.*
@@ -31,7 +29,6 @@ class LinuxShell : Shell() {
             Shell::class.java.protectionDomain.codeSource.location
                 .toURI()
         ).path
-
         if(!jarPath.endsWith(".jar"))
             return
 
@@ -39,11 +36,15 @@ class LinuxShell : Shell() {
             val isOldJava = System.getProperty("java.version").startsWith("1.")
             val javaExe = System.getProperty("java.home") + "/bin/java"
             val javaArgs = if(isOldJava)
-                "-cp '$classPath' -p '$classPath' -jar '$jarPath'"
-            else
                 "-cp '$classPath' -jar '$jarPath'"
+            else
+                "-cp '$classPath' -p '$classPath' -jar '$jarPath'"
             val builder = ProcessBuilder("bash", "-c", "'$javaExe' $javaArgs")
-            builder.start()
+            builder.redirectInput(ProcessBuilder.Redirect.INHERIT)
+            builder.redirectOutput(ProcessBuilder.Redirect.INHERIT)
+            builder.redirectError(ProcessBuilder.Redirect.INHERIT)
+            val process = builder.start()
+            process.waitFor()
             exitProcess(0)
         }
 
