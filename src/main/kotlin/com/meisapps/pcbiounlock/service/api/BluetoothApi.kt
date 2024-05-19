@@ -1,6 +1,9 @@
 package com.meisapps.pcbiounlock.service.api
 
+import com.meisapps.pcbiounlock.utils.extensions.toKBytes
 import com.meisapps.pcbiounlock.utils.extensions.toKString
+import com.meisapps.pcbiounlock.utils.io.Console
+import com.sun.jna.Structure
 import com.sun.jna.ptr.IntByReference
 
 
@@ -23,7 +26,6 @@ object BluetoothApi {
         val devicesPtr = PCBUApi.INSTANCE.bt_scan_devices(pCount)
 
         if(devicesPtr != null) {
-            println("Count: " + pCount.value)
             val devices = if(pCount.value > 0)
                 devicesPtr.toArray(pCount.value) as Array<PCBUBluetoothDevice>
             else
@@ -40,5 +42,12 @@ object BluetoothApi {
         }
 
         return emptyList()
+    }
+
+    fun pairDevice(device: BluetoothDevice): Boolean {
+        val btDevice = PCBUBluetoothDevice()
+        btDevice.name = device.name.toKBytes(Charsets.UTF_8, 255)
+        btDevice.address = device.address.toKBytes(Charsets.UTF_8, 18)
+        return PCBUApi.INSTANCE.bt_pair_device(btDevice)
     }
 }

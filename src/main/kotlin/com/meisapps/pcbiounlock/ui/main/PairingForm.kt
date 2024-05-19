@@ -20,6 +20,7 @@ class PairingForm(mainFrame: MainFrame) : Form(mainFrame), IPairingForm {
 
     private val descLbl = JLabel()
     private val nextBtn = JButton(I18n.get("ui_next"))
+    private val backBtn = JButton(I18n.get("ui_back"))
 
     override fun createUI(contentPane: Container) {
         val rootLayout = GridBagLayout()
@@ -41,7 +42,6 @@ class PairingForm(mainFrame: MainFrame) : Form(mainFrame), IPairingForm {
         titleLbl.font = titleLbl.font.deriveFont(UIGlobals.TitleFontSize)
         descLbl.font = descLbl.font.deriveFont(UIGlobals.DescFontSize)
 
-        val backBtn = JButton(I18n.get("ui_back"))
         backBtn.font = nextBtn.font.deriveFont(UIGlobals.DefaultButtonFontSize)
         backBtn.addActionListener {
             currentPanel.onBackClicked()
@@ -106,6 +106,10 @@ class PairingForm(mainFrame: MainFrame) : Form(mainFrame), IPairingForm {
 
     override fun getNextButton(): JButton {
         return nextBtn
+    }
+
+    override fun getBackButton(): JButton {
+        return backBtn
     }
 
     override fun setDescription(message: String) {

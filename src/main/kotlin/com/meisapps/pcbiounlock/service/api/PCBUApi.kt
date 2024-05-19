@@ -13,6 +13,7 @@ import com.sun.jna.Library
 import com.sun.jna.Native
 import com.sun.jna.Pointer
 import com.sun.jna.Structure
+import com.sun.jna.Structure.ByReference
 import com.sun.jna.ptr.IntByReference
 import java.io.File
 
@@ -34,6 +35,8 @@ interface PCBULibrary : Library {
 
     fun bt_is_available(): Boolean
     fun bt_scan_devices(count: IntByReference): PCBUBluetoothDevice?
+    fun bt_get_paired_devices(count: IntByReference): PCBUBluetoothDevice?
+    fun bt_pair_device(device: PCBUBluetoothDevice): Boolean
 }
 
 object PCBUApi {
@@ -61,7 +64,7 @@ object PCBUApi {
     fun getLocalIP(): String {
         val ptr = INSTANCE.get_local_ip_and_mac()
         if(ptr == null) {
-            Console.println("Error getting local ip address !")
+            Console.println("Error getting local ip address!")
             return I18n.get("error")
         }
 
@@ -73,7 +76,7 @@ object PCBUApi {
     fun getMacAddress(): String {
         val ptr = INSTANCE.get_local_ip_and_mac()
         if(ptr == null) {
-            Console.println("Error getting mac address !")
+            Console.println("Error getting mac address!")
             return ""
         }
 

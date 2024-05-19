@@ -66,6 +66,10 @@ class SetupPairForm(frame: SetupFrame) : SetupStepForm(frame), IPairingForm {
         return (frame as SetupFrame).btnNext
     }
 
+    override fun getBackButton(): JButton {
+        return (frame as SetupFrame).btnBack
+    }
+
     override fun setDescription(message: String) {
         (frame as SetupFrame).lblSetupDesc.text = message
     }

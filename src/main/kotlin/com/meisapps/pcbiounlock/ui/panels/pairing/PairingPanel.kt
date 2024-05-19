@@ -7,6 +7,7 @@ import javax.swing.JFrame
 interface IPairingForm {
     fun getFrame(): JFrame
     fun getNextButton(): JButton
+    fun getBackButton(): JButton
     fun setDescription(message: String)
 
     fun onDevicePaired()

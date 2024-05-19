@@ -10,11 +10,7 @@ import java.awt.EventQueue
 import java.awt.GridBagConstraints
 import java.awt.GridBagLayout
 import java.awt.Insets
-import javax.swing.DefaultListModel
-import javax.swing.DefaultListSelectionModel
-import javax.swing.JLabel
-import javax.swing.JList
-import javax.swing.JPanel
+import javax.swing.*
 
 class BluetoothScanPanel(form: IPairingForm, private val userData: UserData) : PairingPanel(form) {
     private var selectedDevice: BluetoothApi.BluetoothDevice? = null
@@ -27,7 +23,6 @@ class BluetoothScanPanel(form: IPairingForm, private val userData: UserData) : P
 
     init {
         rootPanel.layout = GridBagLayout()
-
         val descLbl = JLabel(I18n.get("ui_pairing_bluetooth_scanning"))
         descLbl.font = descLbl.font.deriveFont(UIGlobals.DefaultFontSize)
 
@@ -69,7 +64,7 @@ class BluetoothScanPanel(form: IPairingForm, private val userData: UserData) : P
             return null
 
         stopScan()
-        return QRScanPanel(form, PairingMethod.BLUETOOTH, userData, selectedDevice!!.address)
+        return BluetoothPairPanel(form, userData, selectedDevice!!)
     }
 
     override fun onBackClicked() {
