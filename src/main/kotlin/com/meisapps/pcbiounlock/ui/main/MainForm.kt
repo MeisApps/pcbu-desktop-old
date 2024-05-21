@@ -29,7 +29,13 @@ class MainForm(mainFrame: MainFrame) : Form(mainFrame) {
 
     private val pairStatusLbl = JLabel()
     private val pairDeviceLbl = JLabel()
-    private val pairedDevicesTbl = JTable(DefaultTableModel(arrayOf(arrayOf()), arrayOf("ID", I18n.get("ui_device_name"), I18n.get("ui_user"), I18n.get("ui_method"))))
+
+    private val pairedDevicesTblModel = object : DefaultTableModel(arrayOf(arrayOf()), arrayOf("ID", I18n.get("ui_device_name"), I18n.get("ui_user"), I18n.get("ui_method"))) {
+        override fun isCellEditable(row: Int, column: Int): Boolean {
+            return false
+        }
+    }
+    private val pairedDevicesTbl = JTable(pairedDevicesTblModel)
 
     private val reinstallBtn = JButton(I18n.get("ui_reinstall"))
     private val installBtn = JButton(I18n.get("ui_install"))
@@ -165,11 +171,7 @@ class MainForm(mainFrame: MainFrame) : Form(mainFrame) {
 
         pairingBtn.font = pairingBtn.font.deriveFont(UIGlobals.DefaultButtonFontSize)
         pairingBtn.addActionListener {
-            if(OperatingSystem.isWindows && deviceStorage.getDevices().isNotEmpty()) {
-                JOptionPane.showMessageDialog(frame, I18n.get("error_win_multi_user"), I18n.get("error"), JOptionPane.ERROR_MESSAGE)
-            } else {
-                frame.displayForm(PairingForm(frame as MainFrame))
-            }
+            frame.displayForm(PairingForm(frame as MainFrame))
         }
 
         pairingDeleteBtn.isEnabled = false

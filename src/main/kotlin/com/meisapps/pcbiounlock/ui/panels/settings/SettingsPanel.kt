@@ -34,6 +34,7 @@ abstract class SettingsPanel(hasPlatformSettings: Boolean) : Panel {
     private val pairingPortInput = JTextField()
 
     private val langSelectBox = JComboBox(I18n.languages.stream().map { it.name }.toArray())
+    private val waitForKeyChkBox = JCheckBox(I18n.get("ui_wait_for_key_press"))
 
     private val settingsRootPanel = JPanel()
 
@@ -64,8 +65,10 @@ abstract class SettingsPanel(hasPlatformSettings: Boolean) : Panel {
         ipInput.font = ipInput.font.deriveFont(UIGlobals.DefaultFontSize)
         unlockPortInput.font = unlockPortInput.font.deriveFont(UIGlobals.DefaultFontSize)
         pairingPortInput.font = pairingPortInput.font.deriveFont(UIGlobals.DefaultFontSize)
+        waitForKeyChkBox.font = waitForKeyChkBox.font.deriveFont(UIGlobals.DefaultFontSize)
 
         ipAutoChkBox.font = ipAutoChkBox.font.deriveFont(UIGlobals.DefaultFontSize)
+        langSelectBox.font = langSelectBox.font.deriveFont(UIGlobals.DefaultFontSize)
         ipAutoChkBox.addActionListener {
             if(ipAutoChkBox.isSelected) {
                 ipInput.isEnabled = false
@@ -75,16 +78,16 @@ abstract class SettingsPanel(hasPlatformSettings: Boolean) : Panel {
             }
         }
 
-        langSelectBox.font = langSelectBox.font.deriveFont(UIGlobals.DefaultFontSize)
-
         gbc.gridheight = 2
         gbc.gridx = 0
         gbc.gridy = 0
         appSettingsPanel.innerPanel.add(ipAddrLbl, gbc)
+        gbc.insets.top = 10
         gbc.gridheight = 1
         gbc.gridx = 1
         gbc.gridy = 0
         appSettingsPanel.innerPanel.add(ipAutoChkBox, gbc)
+        gbc.insets.top = 5
         gbc.gridx = 1
         gbc.gridy = 1
         appSettingsPanel.innerPanel.add(ipInput, gbc)
@@ -110,7 +113,16 @@ abstract class SettingsPanel(hasPlatformSettings: Boolean) : Panel {
         gbc.gridy = 4
         appSettingsPanel.innerPanel.add(langSelectBox, gbc)
 
+        if(OperatingSystem.isWindows) {
+            gbc.insets.top = 10
+            gbc.insets.bottom = 15
+            gbc.gridx = 1
+            gbc.gridy = 5
+            appSettingsPanel.innerPanel.add(waitForKeyChkBox, gbc)
+        }
+
         // Root
+        gbc.insets = Insets(5, gbc.insets.left, 5, gbc.insets.right)
         gbc.gridx = 0
         gbc.gridy = 0
         settingsRootPanel.add(appSettingsPanel, gbc)
@@ -143,6 +155,7 @@ abstract class SettingsPanel(hasPlatformSettings: Boolean) : Panel {
         if(langIdx != -1) {
             langSelectBox.selectedIndex = langIdx
         }
+        waitForKeyChkBox.isSelected = settings.waitForKeyPress
     }
 
     abstract fun init(rootPanel: JPanel)
@@ -164,7 +177,7 @@ abstract class SettingsPanel(hasPlatformSettings: Boolean) : Panel {
             lang = langItem.get().code
         }
 
-        val settings = PCBUAppSettings(AppSettings.get().installedVersion, lang, ipStr, unlockPort, pairingPort)
+        val settings = PCBUAppSettings(AppSettings.get().installedVersion, lang, ipStr, unlockPort, pairingPort, waitForKeyChkBox.isSelected)
         AppSettings.set(settings)
     }
 

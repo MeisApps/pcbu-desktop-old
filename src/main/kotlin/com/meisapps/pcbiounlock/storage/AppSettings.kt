@@ -10,7 +10,7 @@ import kotlinx.serialization.json.Json
 import java.io.File
 
 @Serializable
-data class PCBUAppSettings(val installedVersion: String, val language: String, val serverIP: String, val unlockServerPort: Int, val pairingServerPort: Int)
+data class PCBUAppSettings(val installedVersion: String, val language: String, val serverIP: String, val unlockServerPort: Int, val pairingServerPort: Int, val waitForKeyPress: Boolean)
 
 object AppSettings {
     fun init() {
@@ -44,7 +44,7 @@ object AppSettings {
             val dataStr = shell.readBytes(filePath)!!.toString(Charsets.UTF_8)
             Json.decodeFromString(PCBUAppSettings.serializer(), dataStr)
         } catch (e: Exception) {
-            PCBUAppSettings("", "auto", "auto", 43296, 43295)
+            PCBUAppSettings("", "auto", "auto", 43296, 43295, false)
         }
     }
 

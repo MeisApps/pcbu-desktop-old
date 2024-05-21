@@ -4,6 +4,7 @@ import com.meisapps.pcbiounlock.server.pairing.PairingMethod
 import com.meisapps.pcbiounlock.server.pairing.UserData
 import com.meisapps.pcbiounlock.service.api.BluetoothApi
 import com.meisapps.pcbiounlock.ui.UIGlobals
+import com.meisapps.pcbiounlock.utils.host.OperatingSystem
 import com.meisapps.pcbiounlock.utils.io.Console
 import com.meisapps.pcbiounlock.utils.text.I18n
 import java.awt.EventQueue
@@ -64,7 +65,9 @@ class BluetoothScanPanel(form: IPairingForm, private val userData: UserData) : P
             return null
 
         stopScan()
-        return BluetoothPairPanel(form, userData, selectedDevice!!)
+        if(OperatingSystem.isWindows)
+            return BluetoothPairPanel(form, userData, selectedDevice!!)
+        return QRScanPanel(form, PairingMethod.BLUETOOTH, userData, selectedDevice!!.address)
     }
 
     override fun onBackClicked() {

@@ -27,7 +27,7 @@ abstract class ServiceInstaller {
 
         // Installed version
         val settings = AppSettings.get()
-        AppSettings.set(PCBUAppSettings(VersionInfo.getAppVersion(), settings.language, settings.serverIP, settings.unlockServerPort, settings.pairingServerPort))
+        AppSettings.set(PCBUAppSettings(VersionInfo.getAppVersion(), settings.language, settings.serverIP, settings.unlockServerPort, settings.pairingServerPort, settings.waitForKeyPress))
     }
 
     fun install() {
@@ -41,7 +41,7 @@ abstract class ServiceInstaller {
 
         // Installed version
         val settings = AppSettings.get()
-        AppSettings.set(PCBUAppSettings(VersionInfo.getAppVersion(), settings.language, settings.serverIP, settings.unlockServerPort, settings.pairingServerPort))
+        AppSettings.set(PCBUAppSettings(VersionInfo.getAppVersion(), settings.language, settings.serverIP, settings.unlockServerPort, settings.pairingServerPort, settings.waitForKeyPress))
     }
 
     fun uninstall(fullUninstall: Boolean = false) {
@@ -54,7 +54,7 @@ abstract class ServiceInstaller {
         } else {
             // Installed version
             val settings = AppSettings.get()
-            AppSettings.set(PCBUAppSettings("", settings.language, settings.serverIP, settings.unlockServerPort, settings.pairingServerPort))
+            AppSettings.set(PCBUAppSettings("", settings.language, settings.serverIP, settings.unlockServerPort, settings.pairingServerPort, settings.waitForKeyPress))
         }
     }
 

@@ -85,7 +85,7 @@ fun runMain(args: Array<String>) {
     deviceStorage.init()
     if(appArgs.forcedIp != null) {
         val settings = AppSettings.get()
-        AppSettings.set(PCBUAppSettings(settings.installedVersion, settings.language, appArgs.forcedIp!!, settings.unlockServerPort, settings.pairingServerPort))
+        AppSettings.set(PCBUAppSettings(settings.installedVersion, settings.language, appArgs.forcedIp!!, settings.unlockServerPort, settings.pairingServerPort, settings.waitForKeyPress))
     }
 
     Console.println("=== PC Bio Unlock (v${VersionInfo.getAppVersion()}) ===")

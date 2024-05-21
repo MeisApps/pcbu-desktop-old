@@ -42,6 +42,10 @@ class BluetoothPairPanel(form: IPairingForm, private val userData: UserData, pri
     }
 
     override fun initialize() {
+        form.setDescription(I18n.get("ui_pairing_bluetooth_wait_pair"))
+        form.getNextButton().isEnabled = false
+        form.getBackButton().isEnabled = false
+
         pairThread = Thread {
             val result = BluetoothApi.pairDevice(selectedDevice)
             EventQueue.invokeAndWait {
@@ -56,9 +60,6 @@ class BluetoothPairPanel(form: IPairingForm, private val userData: UserData, pri
             }
         }
         pairThread!!.start()
-        form.setDescription(I18n.get("ui_pairing_bluetooth_wait_pair"))
-        form.getNextButton().isEnabled = false
-        form.getBackButton().isEnabled = false
     }
 
     override fun onNextClicked(): PairingPanel? {
