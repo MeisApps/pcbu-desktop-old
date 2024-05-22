@@ -4,7 +4,7 @@ import com.meisapps.pcbiounlock.service.ServiceInstaller
 import com.meisapps.pcbiounlock.shell.Shell
 import com.meisapps.pcbiounlock.storage.AppSettings
 import com.meisapps.pcbiounlock.natives.LinuxUtils
-import com.meisapps.pcbiounlock.utils.ErrorMessageException
+import com.meisapps.pcbiounlock.utils.exceptions.ErrorMessageException
 import com.meisapps.pcbiounlock.utils.io.Console
 import com.meisapps.pcbiounlock.utils.io.IOUtils
 import com.meisapps.pcbiounlock.utils.io.ResourceHelper
@@ -69,7 +69,7 @@ class LinuxServiceInstaller(private val shell: Shell) : ServiceInstaller() {
         Console.println("Copying binary module...")
         shell.writeBytes("/usr/sbin/$PcbuAuthFileName", ResourceHelper.getNativeByName(PcbuAuthFileName))
         if(shell.runCommand("chmod +x /usr/sbin/$PcbuAuthFileName && chmod u+s /usr/sbin/$PcbuAuthFileName").exitCode != 0)
-            throw Exception("Failed to set uid permissions !")
+            throw Exception("Failed setting setuid permissions!")
 
         Console.println("Copying PAM module...")
         shell.runCommand("mkdir /lib/security")
@@ -86,7 +86,7 @@ class LinuxServiceInstaller(private val shell: Shell) : ServiceInstaller() {
             val fwResult = //shell.runCommand("ufw allow ${settings.unlockServerPort}/tcp").exitCode == 0 &&
                             shell.runCommand("ufw allow ${settings.pairingServerPort}/tcp").exitCode == 0
             if(!fwResult)
-                Console.println("Failed to add firewall rules !")
+                Console.println("Failed to add firewall rules!")
         }
         if(isFirewalldInstalled()) {
             Console.println("Adding firewall rules (firewalld)...")
@@ -94,10 +94,19 @@ class LinuxServiceInstaller(private val shell: Shell) : ServiceInstaller() {
                     shell.runCommand("firewall-cmd --zone=public --add-port=${settings.pairingServerPort}/tcp --permanent").exitCode == 0 &&
                     shell.runCommand("firewall-cmd --reload").exitCode == 0
             if(!fwResult)
-                Console.println("Failed to add firewall rules !")
+                Console.println("Failed to add firewall rules!")
+        }
+        if(isSeLinuxInstalled()) {
+            Console.println("Installing SELinux policy...")
+            val tmpFile = File("/tmp/${ResourceHelper.SELinuxPolicyFileName}")
+            tmpFile.writeBytes(ResourceHelper.getSELinuxPolicy())
+
+            val result = shell.runCommand("semodule -i \"${tmpFile.absolutePath}\"").exitCode == 0
+            if(!result)
+                Console.println("Failed to install SELinux policy!")
+            tmpFile.delete()
         }
 
-        Console.println("Enabling sudo integration...")
         setSudoEnabled(true)
     }
 
@@ -106,7 +115,7 @@ class LinuxServiceInstaller(private val shell: Shell) : ServiceInstaller() {
 
         Console.println("Removing binary module...")
         if(shell.runCommand("rm /usr/sbin/$PcbuAuthFileName").exitCode != 0)
-            Console.println("Failed to remove binary module !")
+            Console.println("Failed to remove binary module!")
 
         Console.println("Removing PAM module...")
         for(moduleDir in LinuxUtils.getPamModuleDirs()) {
@@ -115,7 +124,7 @@ class LinuxServiceInstaller(private val shell: Shell) : ServiceInstaller() {
                 continue
 
             if(shell.runCommand("rm \"$filePath\"").exitCode != 0)
-                throw Exception("Failed to remove PAM module !")
+                throw Exception("Failed to remove PAM module!")
         }
 
         if(isUfwInstalled()) {
@@ -123,7 +132,7 @@ class LinuxServiceInstaller(private val shell: Shell) : ServiceInstaller() {
             val fwResult = //shell.runCommand("ufw delete allow ${settings.unlockServerPort}/tcp").exitCode == 0 &&
                     shell.runCommand("ufw delete allow ${settings.pairingServerPort}/tcp").exitCode == 0
             if(!fwResult)
-                Console.println("Failed to delete firewall rules !")
+                Console.println("Failed to delete firewall rules!")
         }
         if(isFirewalldInstalled()) {
             Console.println("Removing firewall rules (firewalld)...")
@@ -131,7 +140,13 @@ class LinuxServiceInstaller(private val shell: Shell) : ServiceInstaller() {
                     shell.runCommand("firewall-cmd --zone=public --remove-port=${settings.pairingServerPort}/tcp --permanent").exitCode == 0 &&
                     shell.runCommand("firewall-cmd --reload").exitCode == 0
             if(!fwResult)
-                Console.println("Failed to delete firewall rules !")
+                Console.println("Failed to delete firewall rules!")
+        }
+        if(isSeLinuxInstalled()) {
+            Console.println("Uninstalling SELinux policy...")
+            val result = shell.runCommand("semodule -r pcbu_auth_policy").exitCode == 0
+            if(!result)
+                Console.println("Failed to uninstall SELinux policy!")
         }
 
         if(fullUninstall) {
@@ -161,6 +176,10 @@ class LinuxServiceInstaller(private val shell: Shell) : ServiceInstaller() {
 
     private fun isFirewalldInstalled(): Boolean {
         return shell.runUserCommand("which firewall-cmd").exitCode == 0
+    }
+
+    private fun isSeLinuxInstalled(): Boolean {
+        return shell.runUserCommand("which semodule").exitCode == 0
     }
 
     fun isGdmInstalled(): Boolean {

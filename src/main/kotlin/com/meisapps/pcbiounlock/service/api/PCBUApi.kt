@@ -2,7 +2,7 @@ package com.meisapps.pcbiounlock.service.api
 
 import com.meisapps.pcbiounlock.service.ServiceInstaller
 import com.meisapps.pcbiounlock.shell.Shell
-import com.meisapps.pcbiounlock.utils.ErrorMessageException
+import com.meisapps.pcbiounlock.utils.exceptions.ErrorMessageException
 import com.meisapps.pcbiounlock.utils.extensions.toKString
 import com.meisapps.pcbiounlock.utils.host.HostOS
 import com.meisapps.pcbiounlock.utils.host.OperatingSystem
@@ -13,7 +13,6 @@ import com.sun.jna.Library
 import com.sun.jna.Native
 import com.sun.jna.Pointer
 import com.sun.jna.Structure
-import com.sun.jna.Structure.ByReference
 import com.sun.jna.ptr.IntByReference
 import java.io.File
 

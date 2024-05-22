@@ -1,7 +1,7 @@
 package com.meisapps.pcbiounlock.storage
 
 import com.meisapps.pcbiounlock.shell.Shell
-import com.meisapps.pcbiounlock.utils.ErrorMessageException
+import com.meisapps.pcbiounlock.utils.exceptions.ErrorMessageException
 import com.meisapps.pcbiounlock.utils.host.HostOS
 import com.meisapps.pcbiounlock.utils.host.OperatingSystem
 import com.meisapps.pcbiounlock.utils.text.I18n

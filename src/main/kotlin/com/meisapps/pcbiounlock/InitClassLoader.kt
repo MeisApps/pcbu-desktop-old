@@ -2,7 +2,7 @@ package com.meisapps.pcbiounlock
 
 import com.formdev.flatlaf.FlatDarkLaf
 import com.meisapps.pcbiounlock.shell.Shell
-import com.meisapps.pcbiounlock.utils.ErrorMessageException
+import com.meisapps.pcbiounlock.utils.exceptions.ErrorMessageException
 import com.meisapps.pcbiounlock.utils.io.Console
 import com.meisapps.pcbiounlock.utils.text.I18n
 import java.awt.GraphicsEnvironment

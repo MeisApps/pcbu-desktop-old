@@ -4,7 +4,7 @@ import com.meisapps.pcbiounlock.natives.LinuxUtils
 import com.meisapps.pcbiounlock.service.DeviceStorage
 import com.meisapps.pcbiounlock.service.ServiceInstaller
 import com.meisapps.pcbiounlock.shell.Shell
-import com.meisapps.pcbiounlock.utils.ErrorMessageException
+import com.meisapps.pcbiounlock.utils.exceptions.ErrorMessageException
 import com.meisapps.pcbiounlock.utils.host.HostArchitecture
 import com.meisapps.pcbiounlock.utils.host.HostUtils
 import com.meisapps.pcbiounlock.utils.host.OperatingSystem
@@ -14,7 +14,6 @@ import com.meisapps.pcbiounlock.utils.text.I18n
 import com.sun.jna.platform.win32.Advapi32Util
 import com.sun.jna.platform.win32.WinReg
 import java.awt.Desktop
-import java.awt.GraphicsEnvironment
 import java.net.URI
 import javax.swing.JOptionPane
 import kotlin.system.exitProcess
@@ -57,25 +56,12 @@ object StartupHelper {
                 throw ErrorMessageException(I18n.get("error_linux_required_dep", "OpenSSL 3"))
 
             // Has Bluetooth
-            if(!LinuxUtils.hasSharedLibrary("libbluetooth.so") || !LinuxUtils.hasSharedLibrary("libbluetooth.so.3"))
+            if(!LinuxUtils.hasSharedLibrary("libbluetooth.so") && !LinuxUtils.hasSharedLibrary("libbluetooth.so.3"))
                 throw ErrorMessageException(I18n.get("error_linux_required_dep", "Bluetooth"))
-
-            // SELinux check
-            if(shell.runUserCommand("which getenforce").exitCode == 0 && shell.runUserCommand("getenforce").output == "Enforcing") {
-                if(GraphicsEnvironment.isHeadless()) {
-                    Console.println("${I18n.get("warning").uppercase()}: ${I18n.get("warning_selinux")}")
-                } else {
-                    JOptionPane.showMessageDialog(
-                        null,
-                        I18n.get("warning_selinux"),
-                        I18n.get("warning"),
-                        JOptionPane.WARNING_MESSAGE
-                    )
-                }
-            }
 
             ResourceHelper.getNativeByName(ResourceHelper.PcbuAuthFileName)
             ResourceHelper.getNativeByName(ResourceHelper.PamModuleFileName)
+            ResourceHelper.getSELinuxPolicy()
         }
 
         // Windows
@@ -120,7 +106,6 @@ object StartupHelper {
                 ResourceHelper.getNativeByName(ResourceHelper.WinX64SSLFileName)
             }
         }
-
         Console.println("Resources verified.")
     }
 }

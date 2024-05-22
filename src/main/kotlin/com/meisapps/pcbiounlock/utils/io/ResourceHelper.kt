@@ -1,6 +1,6 @@
 package com.meisapps.pcbiounlock.utils.io
 
-import com.meisapps.pcbiounlock.utils.ErrorMessageException
+import com.meisapps.pcbiounlock.utils.exceptions.ErrorMessageException
 import com.meisapps.pcbiounlock.utils.host.HostArchitecture
 import com.meisapps.pcbiounlock.utils.host.HostOS
 import com.meisapps.pcbiounlock.utils.host.HostUtils
@@ -19,6 +19,7 @@ object ResourceHelper {
 
     const val LinuxSSLFileName = "libssl.so.3"
     const val LinuxCryptoFileName = "libcrypto.so.3"
+    const val SELinuxPolicyFileName = "pcbu_auth_policy.pp"
 
     const val WinX64SSLFileName = "libssl-3-x64.dll"
     const val WinX64CryptoFileName = "libcrypto-3-x64.dll"
@@ -48,7 +49,11 @@ object ResourceHelper {
             else ->throw ErrorMessageException(I18n.get("unsupported_os"))
         }
 
-        return getFileBytes("natives/$osStr/$archStr/$fileName") ?: throw Exception("Could not find native $fileName for $osStr/$archStr !")
+        return getFileBytes("natives/$osStr/$archStr/$fileName") ?: throw Exception("Could not find native $fileName for $osStr/$archStr!")
+    }
+
+    fun getSELinuxPolicy() : ByteArray {
+        return getFileBytes("selinux/$SELinuxPolicyFileName") ?: throw Exception("Could not find SELinux policy!")
     }
 
     fun getAppIcon(): Image {

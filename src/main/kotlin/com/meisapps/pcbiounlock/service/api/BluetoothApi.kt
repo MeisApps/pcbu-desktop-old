@@ -2,10 +2,7 @@ package com.meisapps.pcbiounlock.service.api
 
 import com.meisapps.pcbiounlock.utils.extensions.toKBytes
 import com.meisapps.pcbiounlock.utils.extensions.toKString
-import com.meisapps.pcbiounlock.utils.io.Console
-import com.sun.jna.Structure
 import com.sun.jna.ptr.IntByReference
-
 
 object BluetoothApi {
     private var isBTAvailable = PCBUApi.INSTANCE.bt_is_available()

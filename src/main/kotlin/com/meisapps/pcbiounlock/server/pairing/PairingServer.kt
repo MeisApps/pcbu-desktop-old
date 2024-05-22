@@ -11,7 +11,7 @@ import com.meisapps.pcbiounlock.service.PairedDevice
 import com.meisapps.pcbiounlock.service.api.PCBUApi
 import com.meisapps.pcbiounlock.storage.AppSettings
 import com.meisapps.pcbiounlock.utils.AESUtils
-import com.meisapps.pcbiounlock.utils.ErrorMessageException
+import com.meisapps.pcbiounlock.utils.exceptions.ErrorMessageException
 import com.meisapps.pcbiounlock.utils.host.HostUtils
 import com.meisapps.pcbiounlock.utils.text.StringUtils
 import com.meisapps.pcbiounlock.utils.VersionInfo

@@ -4,13 +4,10 @@ import com.meisapps.pcbiounlock.service.DeviceStorage
 import com.meisapps.pcbiounlock.service.PairedDevice
 import com.meisapps.pcbiounlock.shell.Shell
 import com.meisapps.pcbiounlock.storage.AppSettings
-import com.meisapps.pcbiounlock.utils.ErrorMessageException
-import com.meisapps.pcbiounlock.natives.LinuxUtils
+import com.meisapps.pcbiounlock.utils.exceptions.ErrorMessageException
 import com.meisapps.pcbiounlock.utils.text.I18n
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
-import java.io.File
-
 
 class PamDeviceStorage(private val shell: Shell) : DeviceStorage() {
     override fun clearData() {
