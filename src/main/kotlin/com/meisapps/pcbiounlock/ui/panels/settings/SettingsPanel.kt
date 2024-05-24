@@ -34,7 +34,7 @@ abstract class SettingsPanel(hasPlatformSettings: Boolean) : Panel {
     private val pairingPortInput = JTextField()
 
     private val langSelectBox = JComboBox(I18n.languages.stream().map { it.name }.toArray())
-    private val waitForKeyChkBox = JCheckBox(I18n.get("ui_wait_for_key_press"))
+    val waitForKeyChkBox = JCheckBox(I18n.get("ui_wait_for_key_press"))
 
     private val settingsRootPanel = JPanel()
 

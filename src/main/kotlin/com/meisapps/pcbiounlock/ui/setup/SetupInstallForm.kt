@@ -3,6 +3,7 @@ package com.meisapps.pcbiounlock.ui.setup
 import com.meisapps.pcbiounlock.SetupFrame
 import com.meisapps.pcbiounlock.ui.panels.settings.LinuxSettingsPanel
 import com.meisapps.pcbiounlock.ui.panels.settings.SettingsPanel
+import com.meisapps.pcbiounlock.utils.host.OperatingSystem
 import com.meisapps.pcbiounlock.utils.text.I18n
 import java.awt.Container
 import javax.swing.BoxLayout
@@ -23,6 +24,9 @@ class SetupInstallForm(frame: SetupFrame) : SetupStepForm(frame) {
             settingsPanel.enablePolkitChkBox.isSelected = true
             if(settingsPanel.enableLoginScreenChkBox.isEnabled)
                 settingsPanel.enableLoginScreenChkBox.isSelected = true
+        }
+        if(OperatingSystem.isWindows) {
+            settingsPanel.waitForKeyChkBox.isSelected = true
         }
     }
 
