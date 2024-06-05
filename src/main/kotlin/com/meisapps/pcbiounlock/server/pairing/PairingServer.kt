@@ -3,9 +3,6 @@ package com.meisapps.pcbiounlock.server.pairing
 import com.meisapps.pcbiounlock.natives.NativeUtils
 import com.meisapps.pcbiounlock.server.BasicServer
 import com.meisapps.pcbiounlock.server.ConnectedClient
-import com.meisapps.pcbiounlock.server.packets.DataReaderStream
-import com.meisapps.pcbiounlock.server.packets.DataWriterStream
-import com.meisapps.pcbiounlock.server.packets.Packet
 import com.meisapps.pcbiounlock.service.DeviceStorage
 import com.meisapps.pcbiounlock.service.PairedDevice
 import com.meisapps.pcbiounlock.service.api.PCBUApi
@@ -21,60 +18,22 @@ import com.meisapps.pcbiounlock.utils.text.I18n
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 
+@Serializable
+data class PacketPairInit(var protoVersion: String, var deviceName: String, var ipAddress: String, var cloudToken: String)
 
-class PacketPairDevice(var version: String, var deviceName: String, var messagingToken: String, var ipAddress: String) : Packet() {
-    companion object {
-        const val PacketId = 0
-    }
-
-    override fun getPacketId(): Int {
-        return PacketId
-    }
-
-    override fun read(b: ByteArray) {
-        val stream = DataReaderStream(b)
-        version = stream.readString()
-        deviceName = stream.readString()
-        messagingToken = stream.readString()
-        ipAddress = stream.readString()
-    }
-}
-
-class PacketPairResult(var isPaired: Boolean, var message: String,
-                       var pairingId: String, var name: String, var hostOS: String, var pairingMethod: PairingMethod, var macAddress: String,
-                       var userName: String, var password: String) : Packet() {
-    companion object {
-        const val PacketId = 1
-    }
-
-    override fun getPacketId(): Int {
-        return PacketId
-    }
-
-    override fun write(): ByteArray {
-        val stream = DataWriterStream()
-        stream.writeBoolean(isPaired)
-        stream.writeString(message)
-        stream.writeString(pairingId)
-        stream.writeString(name)
-        stream.writeString(hostOS)
-        stream.writeInt(pairingMethod.ordinal)
-        stream.writeString(macAddress)
-        stream.writeString(userName)
-        stream.writeString(password)
-        return stream.toByteArray()
-    }
-}
+@Serializable
+data class PacketPairResponse(var errMsg: String, var pairingId: String, var pairingMethod: PairingMethod, var hostName: String, var hostOS: String, var macAddress: String, var userName: String, var password: String)
 
 @Serializable
 data class PairingQRData(val ip: String, val port: Int, val method: Int, val encKey: String)
 
 data class UserData(val userName: String, val password: String)
+
 class PairingServer(private val deviceStorage: DeviceStorage, private val pairingMethod: PairingMethod, private val userData: UserData)
     : BasicServer("0.0.0.0", AppSettings.get().pairingServerPort, StringUtils.generateRandomString(32)) {
     var bluetoothAddress = ""
 
-    private var devicePairedListener: ((PacketPairResult) -> Unit)? = null
+    private var devicePairedListener: ((PacketPairResponse) -> Unit)? = null
     private var errorListener: ((String) -> Unit)? = null
 
     fun getQRText() : String {
@@ -86,7 +45,7 @@ class PairingServer(private val deviceStorage: DeviceStorage, private val pairin
         return Json.encodeToString(PairingQRData.serializer(), data)
     }
 
-    fun setOnDevicePairedListener(u: (PacketPairResult) -> Unit) {
+    fun setOnDevicePairedListener(u: (PacketPairResponse) -> Unit) {
         devicePairedListener = u
     }
 
@@ -106,37 +65,25 @@ class PairingServer(private val deviceStorage: DeviceStorage, private val pairin
         stop()
     }
 
-    override fun onPacketReceived(client: ConnectedClient, packetId: Int, packetData: ByteArray) {
-        when(packetId) {
-            PacketPairDevice.PacketId -> {
-                val packet = PacketPairDevice("", "", "", "")
-                packet.read(packetData)
-
-                pairDevice(client, packet)
-            }
-        }
-    }
-
-    private fun pairDevice(client: ConnectedClient, packet: PacketPairDevice) {
+    override fun onDataReceived(client: ConnectedClient, data: ByteArray) {
         try {
-            if(packet.version != VersionInfo.getProtocolVersion())
+            val packet = Json.decodeFromString(PacketPairInit.serializer(), data.toString(Charsets.UTF_8))
+            if(packet.protoVersion != VersionInfo.getProtocolVersion())
                 throw ErrorMessageException(I18n.get("error_app_version_mismatch"))
 
             val pairingId = AESUtils.sha256(NativeUtils.getForPlatform().getDeviceUUID() + packet.deviceName + userData.userName)
-            val device = PairedDevice(pairingId, pairingMethod, packet.deviceName, userData.userName, encryptionKey, packet.ipAddress, bluetoothAddress, packet.messagingToken)
+            val device = PairedDevice(pairingId, pairingMethod, packet.deviceName, userData.userName, encryptionKey, packet.ipAddress, bluetoothAddress, packet.cloudToken)
             deviceStorage.addDevice(device)
 
-            val resultPacket = PacketPairResult(true, "",
-                pairingId, HostUtils.getDeviceName(), OperatingSystem.getString(), pairingMethod, PCBUApi.getMacAddress(),
+            val resultPacket = PacketPairResponse("",
+                pairingId, pairingMethod, HostUtils.getDeviceName(), OperatingSystem.getString(), PCBUApi.getMacAddress(),
                 userData.userName, userData.password)
-            client.sendPacket(resultPacket)
-
+            client.sendPacket(Json.encodeToString(PacketPairResponse.serializer(), resultPacket))
             devicePairedListener?.invoke(resultPacket)
         } catch (e: Exception) {
             Console.println(e.stackTraceToString())
-            val resultPacket = PacketPairResult(false, e.message!!, "", "", "", PairingMethod.TCP, "", "", "")
-            client.sendPacket(resultPacket)
-
+            val resultPacket = PacketPairResponse(e.message!!, "", PairingMethod.TCP, "", "", "", "", "")
+            client.sendPacket(Json.encodeToString(PacketPairResponse.serializer(), resultPacket))
             errorListener?.invoke(e.message!!)
         }
     }

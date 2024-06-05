@@ -28,6 +28,7 @@ abstract class BasicServer(private val ip: String, private val port: Int, protec
                 }
             } catch (e: Exception) {
                 isRunning = false
+                Console.println("Server stopped.")
             }
         }
 
@@ -49,17 +50,5 @@ abstract class BasicServer(private val ip: String, private val port: Int, protec
         Console.println("Server stopped.")
     }
 
-    protected abstract fun onPacketReceived(client: ConnectedClient, packetId: Int, packetData: ByteArray)
-
-    private fun onDataReceived(client: ConnectedClient, b: ByteArray) {
-        val packetId = b[0]
-        val packetData = b.copyOfRange(1, b.size)
-        if(packetData.isEmpty()) {
-            Console.println("Malformed packet")
-            return
-        }
-
-        val decryptedData = AESUtils.decryptPacketData(packetData, encryptionKey)
-        onPacketReceived(client, packetId.toInt(), decryptedData)
-    }
+    protected abstract fun onDataReceived(client: ConnectedClient, data: ByteArray)
 }
