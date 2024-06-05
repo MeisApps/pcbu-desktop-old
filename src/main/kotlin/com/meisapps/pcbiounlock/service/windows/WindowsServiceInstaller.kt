@@ -61,6 +61,9 @@ class WindowsServiceInstaller(private val shell: Shell) : ServiceInstaller() {
 
         var javaExe = System.getProperty("java.home") + "\\bin\\javaw.exe"
         javaExe = javaExe.replace('/', '\\')
+        val fwClearResult = shell.runCommand("powershell /c \"Get-NetFirewallRule | Where-Object { \$_.Direction -eq \\\"Inbound\\\" -or \$_.Direction -eq \\\"Outbound\\\" } | Get-NetFirewallApplicationFilter | Where-Object { \$_.Program -eq \\\"$javaExe\\\" } | Remove-NetFirewallRule\"").exitCode == 0
+        if(!fwClearResult)
+            Console.println("Failed to clear old Java firewall rules !")
         val javaFwResult = shell.runCommand("netsh advfirewall firewall add rule name=\"$JavaFirewallRule\" dir=in program=\"$javaExe\" profile=any action=allow").exitCode == 0
         if(!javaFwResult)
             Console.println("Failed to add Java firewall rule !")

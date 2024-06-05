@@ -28,6 +28,9 @@ abstract class BasicServer(private val ip: String, private val port: Int, protec
                 }
             } catch (e: Exception) {
                 isRunning = false
+                for(client in clients)
+                    client.close()
+                serverSocket.close()
                 Console.println("Server stopped.")
             }
         }

@@ -9,17 +9,20 @@ import java.net.Socket
 import java.net.SocketException
 
 class ConnectedClient(private val socket: Socket, private val encryptionKey: String, private val dataReceivedCallback: (client: ConnectedClient, b: ByteArray) -> Unit) {
-    private val recvThread: Thread = Thread { receiveThread(socket) }
+    private val recvThread: Thread = Thread { receiveThread() }
     private var isRunning = true
 
     init {
         recvThread.start()
     }
 
-    fun close() {
+    fun close(block: Boolean = true) {
         isRunning = false
-        socket.close()
-        recvThread.join()
+        try {
+            socket.close()
+        } catch(_: Exception) {}
+        if(block && recvThread.isAlive)
+            recvThread.join()
     }
 
     fun sendPacket(packetStr: String) {
@@ -30,21 +33,20 @@ class ConnectedClient(private val socket: Socket, private val encryptionKey: Str
         stream.flush()
     }
 
-    private fun receiveThread(client: Socket) {
+    private fun receiveThread() {
         try {
             while (isRunning) {
                 val stream = DataInputStream(socket.getInputStream())
                 val length = stream.readUnsignedShort()
                 val data = ByteArray(length)
                 stream.readFully(data)
-                val decData = AESUtils.decryptPacketData(data, encryptionKey)
-                dataReceivedCallback(this, decData)
+                dataReceivedCallback(this, data)
             }
         } catch (e: Exception) {
             if(e !is SocketException && e !is EOFException)
                 Console.println(e.stackTraceToString())
         } finally {
-            client.close()
+            close(false)
         }
     }
 }

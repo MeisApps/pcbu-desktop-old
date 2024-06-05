@@ -67,7 +67,8 @@ class PairingServer(private val deviceStorage: DeviceStorage, private val pairin
 
     override fun onDataReceived(client: ConnectedClient, data: ByteArray) {
         try {
-            val packet = Json.decodeFromString(PacketPairInit.serializer(), data.toString(Charsets.UTF_8))
+            val decData = AESUtils.decryptPacketData(data, encryptionKey)
+            val packet = Json.decodeFromString(PacketPairInit.serializer(), decData.toString(Charsets.UTF_8))
             if(packet.protoVersion != VersionInfo.getProtocolVersion())
                 throw ErrorMessageException(I18n.get("error_app_version_mismatch"))
 

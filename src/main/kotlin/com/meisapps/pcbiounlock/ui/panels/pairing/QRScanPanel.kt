@@ -55,7 +55,7 @@ class QRScanPanel(form: IPairingForm, method: PairingMethod, userData: UserData,
             server.start()
         } catch (e: Exception) {
             Console.println(e.stackTraceToString())
-            JOptionPane.showMessageDialog(form as FormFrame, I18n.get("error_pairing_server"), I18n.get("error"), JOptionPane.ERROR_MESSAGE)
+            JOptionPane.showMessageDialog(form.getFrame(), I18n.get("error_pairing_server"), I18n.get("error"), JOptionPane.ERROR_MESSAGE)
         }
     }
 
