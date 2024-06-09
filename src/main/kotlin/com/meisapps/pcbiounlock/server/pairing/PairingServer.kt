@@ -19,7 +19,7 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 
 @Serializable
-data class PacketPairInit(var protoVersion: String, var deviceName: String, var ipAddress: String, var cloudToken: String)
+data class PacketPairInit(var protoVersion: String, var deviceUUID: String, var deviceName: String, var ipAddress: String, var cloudToken: String)
 
 @Serializable
 data class PacketPairResponse(var errMsg: String, var pairingId: String, var pairingMethod: PairingMethod, var hostName: String, var hostOS: String, var macAddress: String, var userName: String, var password: String)
@@ -72,7 +72,7 @@ class PairingServer(private val deviceStorage: DeviceStorage, private val pairin
             if(packet.protoVersion != VersionInfo.getProtocolVersion())
                 throw ErrorMessageException(I18n.get("error_app_version_mismatch"))
 
-            val pairingId = AESUtils.sha256(NativeUtils.getForPlatform().getDeviceUUID() + packet.deviceName + userData.userName)
+            val pairingId = AESUtils.sha256(NativeUtils.getForPlatform().getDeviceUUID() + packet.deviceUUID + userData.userName)
             val device = PairedDevice(pairingId, pairingMethod, packet.deviceName, userData.userName, encryptionKey, packet.ipAddress, bluetoothAddress, packet.cloudToken)
             deviceStorage.addDevice(device)
 

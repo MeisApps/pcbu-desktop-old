@@ -8,7 +8,7 @@ object VersionInfo {
     }
 
     fun getProtocolVersion(): String {
-        return "1.1.0"
+        return "1.2.0"
     }
 
     fun compareVersion(thisVersion: String, otherVersion: String): Int {
