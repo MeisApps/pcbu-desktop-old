@@ -1,6 +1,7 @@
 package com.meisapps.pcbiounlock.natives
 
 import com.meisapps.pcbiounlock.shell.Shell
+import com.meisapps.pcbiounlock.utils.io.Console
 import com.sun.jna.Library
 import com.sun.jna.Native
 import com.sun.jna.Pointer
@@ -70,11 +71,10 @@ object WinUtils : NativeUtils() {
             return false
 
         val phUser = WinNT.HANDLEByReference()
-        Advapi32.INSTANCE.LogonUser(split[1], split[0], "", WinBase.LOGON32_LOGON_NETWORK, WinBase.LOGON32_PROVIDER_DEFAULT, phUser)
+        Advapi32.INSTANCE.LogonUser(split[1], split[0], "", WinBase.LOGON32_LOGON_INTERACTIVE, WinBase.LOGON32_PROVIDER_DEFAULT, phUser)
         val error = Kernel32.INSTANCE.GetLastError()
         if(phUser.value != null)
             Kernel32.INSTANCE.CloseHandle(phUser.value)
-
         return error != 1327
     }
 
@@ -84,9 +84,12 @@ object WinUtils : NativeUtils() {
             return false
 
         val phUser = WinNT.HANDLEByReference()
-        val result = Advapi32.INSTANCE.LogonUser(split[1], split[0], password, WinBase.LOGON32_LOGON_NETWORK, WinBase.LOGON32_PROVIDER_DEFAULT, phUser)
+        val result = Advapi32.INSTANCE.LogonUser(split[1], split[0], password, WinBase.LOGON32_LOGON_INTERACTIVE, WinBase.LOGON32_PROVIDER_DEFAULT, phUser)
+        val error = Kernel32.INSTANCE.GetLastError()
         if(phUser.value != null)
             Kernel32.INSTANCE.CloseHandle(phUser.value)
+        if(!result)
+            Console.println("LogonUser() failed. (Code=$error)")
         return result
     }
 
