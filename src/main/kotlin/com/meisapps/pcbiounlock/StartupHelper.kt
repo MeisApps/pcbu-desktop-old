@@ -79,7 +79,7 @@ object StartupHelper {
                     "SOFTWARE\\Microsoft\\VisualStudio\\14.0\\VC\\Runtimes\\" + if(isArm) "arm64" else "x64",
                     "Bld"
                 )
-                hasRedist = redistBuild >= 0x7a5e
+                hasRedist = redistBuild >= 0x8412
             } catch (_: Exception) { }
 
             if(!hasRedist) {
